@@ -16,6 +16,21 @@ let fail = 0
 const check = (name, ok, info = '') => { console.log(`${ok ? '✓' : '✗'} ${name}${info ? '  ' + info : ''}`); if (!ok) fail++ }
 
 const PORT = await freePort(), DBG = await freePort()
+// 本验收需要真实浏览器（Edge/Chromium）。没有就跳过，不算失败。
+const EDGE = [
+  process.env.WORKSHOP_BROWSER,
+  'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+  'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
+  '/usr/bin/microsoft-edge',
+  '/usr/bin/microsoft-edge-stable',
+  '/usr/bin/google-chrome',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+].filter(Boolean).find((p) => fs.existsSync(p))
+if (!EDGE) {
+  console.log('跳过：本机没有 Edge/Chrome/Chromium，自动更新验收需要真实浏览器（设 WORKSHOP_BROWSER 可指定可执行文件）')
+  process.exit(0)
+}
 const SANDBOX = fs.mkdtempSync(path.join(os.tmpdir(), 'ws-au-books-'))
 const BOOK = path.join(SANDBOX, 'books', 'sample-book')
 fs.mkdirSync(path.join(BOOK, 'chapters'), { recursive: true })
@@ -24,7 +39,6 @@ fs.writeFileSync(path.join(BOOK, 'chapters', '0001.txt'), '第1章 示例\n\n这
 const env = { ...process.env, WORKSHOP_PORT: String(PORT), WORKSHOP_RESTART_QUIET_MS: '1500', WORKSHOP_SANDBOX: SANDBOX }
 const launcher = spawn(process.execPath, [path.join(HERE, 'launcher.mjs')], { env, stdio: ['ignore', 'pipe', 'pipe'] })
 const out = []; launcher.stdout.on('data', (d) => out.push(String(d))); launcher.stderr.on('data', (d) => out.push(String(d)))
-const EDGE = ['C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', 'C:/Program Files/Microsoft/Edge/Application/msedge.exe'].find((p) => fs.existsSync(p))
 const prof = fs.mkdtempSync(path.join(os.tmpdir(), 'ws-au-'))
 const edge = spawn(EDGE, ['--headless=new', `--remote-debugging-port=${DBG}`, `--user-data-dir=${prof}`, '--no-first-run', 'about:blank'], { stdio: 'ignore' })
 const status = async () => { try { return await (await fetch(`http://127.0.0.1:${PORT}/api/status`)).json() } catch { return null } }
