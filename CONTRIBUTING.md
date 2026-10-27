@@ -15,6 +15,14 @@ node workshop/test.mjs  # full suite, no network, no API keys required
 Most tests run against a loopback stub model server, so you do not need credentials to develop.
 Tests that need a live endpoint are opt-in via env vars and are skipped otherwise.
 
+```bash
+node workshop/run-all-tests.mjs                 # every browserless suite, one summary line
+WORKSHOP_UI_TESTS=1 node workshop/test-autoupdate.mjs   # browser acceptance (needs Edge/Chrome)
+```
+
+Browser-driving acceptances (`test-autoupdate`, and the Playwright ones under `workshop/`) stay off by
+default: they need a real Chromium and are timing sensitive, so CI runs only the browserless set.
+
 ## Ground rules
 
 1. **`node:` builtins only.** A pull request that adds a runtime dependency needs a very good reason
