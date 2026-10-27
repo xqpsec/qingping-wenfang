@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DeepSeek 作者与测试</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#f5f7f8;color:#20282b;font:15px/1.6 system-ui,sans-serif;letter-spacing:0}header{background:#fff;border-bottom:1px solid #d6dde0;padding:18px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}body.embed header{padding:8px 16px}body.embed header h1{font-size:16px}h1{font-size:21px;margin:0}main{max-width:1300px;margin:auto;padding:24px;display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:28px}section{min-width:0}h2{font-size:17px;margin:0 0 12px}label{display:block;margin:12px 0 4px}input,select,textarea,button{font:inherit;border:1px solid #b4c0c5;border-radius:5px;padding:9px}input,select,textarea{width:100%;background:#fff}textarea{resize:vertical;min-height:90px}button{cursor:pointer;background:#fff;white-space:normal}button.primary{background:#087660;color:#fff;border-color:#087660}button.danger{color:#a52f3e}button.warn{background:#b8461f;color:#fff;border-color:#b8461f}button.mini{padding:3px 10px;font-size:13px}button:disabled{opacity:.45;cursor:default}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1;min-width:90px}.check{display:flex;gap:8px;align-items:center}.check input{width:auto}.modes{display:grid;gap:8px;margin:10px 0}.mode{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;border:1px solid #b4c0c5;border-radius:6px;padding:10px;margin:0;background:#fff;cursor:pointer}.mode input{width:auto;grid-row:1/3;align-self:center}.mode span{font-size:13px;color:#57686f}.mode:has(input:checked){border-color:#087660;background:#eef8f5}.muted{color:#57686f;font-size:13px}.error{color:#b52c38;white-space:pre-wrap}#log{height:460px;overflow:auto;background:#192422;color:#dcece3;padding:14px;font:13px/1.65 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word;border-radius:5px}#report{white-space:pre-wrap;overflow-wrap:anywhere;border-top:1px solid #d6dde0;margin-top:20px;padding-top:14px}.status{color:#087660}.runbtn{flex:0 1 auto;text-align:left}a{color:#096f91}
+.tabs{display:flex;gap:4px;border-bottom:1px solid #d6dde0;margin-bottom:12px}.tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:8px 14px}.tabs button[aria-selected=true]{border-bottom-color:#087660;color:#087660;font-weight:600}.badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:#b8461f;color:#fff;font-size:12px;text-align:center;margin-left:4px}.badge:empty{display:none}
+.issue{background:#fff;border:1px solid #d6dde0;border-left:4px solid #d39b2a;border-radius:5px;padding:10px 12px;margin:8px 0}.issue.req{border-left-color:#b8461f}.issue.sent{opacity:.65;border-left-color:#087660}.issue p{margin:0 0 6px;white-space:pre-wrap;overflow-wrap:anywhere}.q{font-size:13px;padding:4px 0;border-bottom:1px dashed #e0e5e7}
+.book{background:#fff;border:1px solid #d6dde0;border-radius:6px;padding:12px 14px;margin:10px 0}.book h3{margin:0 0 4px;font-size:16px}.pill{display:inline-block;padding:1px 9px;border-radius:10px;font-size:12px;margin-left:6px;background:#e8edef}.pill.signed{background:#d8f3e6;color:#06603f}.pill.pending{background:#fff1cc;color:#7a5600}.pill.rejected{background:#fde2e2;color:#9b1c1c}.gaps{margin:6px 0;padding-left:18px;font-size:13px;color:#7a3b12}.book .row>button{flex:0 1 auto}
+@media(max-width:800px){main{grid-template-columns:1fr;padding:16px}#log{height:340px}header{padding:16px}}</style></head>
+<body><header><h1>DeepSeek 作者与测试</h1><span id="phase" class="status">准备中</span></header><main>
+<section><h2>开始</h2>
+<div class="card"><p class="muted" style="margin-top:0">选一种起点，点开始就行。下面所有选项都是可选的。完成后封面、正文、简介、签约体检会放到桌面「清平文坊-客户成果\书名」文件夹，书同步回「我的书库」。</p>
+<div class="modes" role="radiogroup" aria-label="起点">
+<label class="mode"><input type="radio" name="mode" value="new" checked><b>懒人模式 · 从零开新书</b><span>什么都不用填，它自己选风格、想点子、开书、写、做封面</span></label>
+<label class="mode"><input type="radio" name="mode" value="continue"><b>续写我的书</b><span>选一本已有的书，接着往下写，保持人设和文风</span></label>
+<label class="mode"><input type="radio" name="mode" value="polish"><b>打磨我的书（不写新章）</b><span>只改已有正文（重点开篇）、补或重做书名简介封面。签约被拒后用这个</span></label>
+<label class="mode"><input type="radio" name="mode" value="custom"><b>按我的设定新建一本</b><span>你给书名和设定，它来写</span></label>
+<label class="mode"><input type="radio" name="mode" value="short"><b>写一篇短篇投稿</b><span>用「✍ 短篇投稿」写 1–2 万字短篇，读完挑毛病，带投稿包交付</span></label>
+</div>
+<div data-for="short" hidden><label for="shortChannel">投稿渠道（可不指定）</label><select id="shortChannel"><option value="">不指定，它自己挑</option></select>
+<label for="shortGenre">题材（可不指定）</label><select id="shortGenre"><option value="">不指定，它自己挑</option></select>
+<label for="shortIdea">一句话灵感（可不填）</label><input id="shortIdea" maxlength="300" placeholder="不填就让它自己想"></div>
+<div data-for="new"><label for="autoStyle">风格（可不指定，让它自己选）</label><select id="autoStyle"><option value="">不指定，它自己选</option></select>
+<label for="autoIdea">一句话想法（可不填）</label><input id="autoIdea" maxlength="300" placeholder="不填就让它自己想">
+<label for="targetWords">目标字数（默认 2 万字）</label><input id="targetWords" type="number" min="5000" max="200000" step="5000" value="20000"></div>
+<div data-for="continue polish" hidden><label for="book">选择书</label><select id="book"><option value="">请选择</option></select><div id="bookInfo" class="muted">正在读取书库</div></div>
+<div data-for="polish" hidden><p class="muted" style="margin:10px 0 0">要打磨哪些（至少选一项）：</p><label class="check"><input id="polishText" type="checkbox" checked>改已有正文（开篇前 3 章优先，改前改后对比，更好才采用）</label><label class="check"><input id="polishPack" type="checkbox">重做简介和标签（书名原则上不改）</label><label class="check"><input id="polishCover" type="checkbox">重做封面</label><p class="muted">没有封面、简介的书，不勾也会自动补上。登记过被拒的书，编辑原话和体检缺项会自动交给它。</p></div>
+<div data-for="custom" hidden><label for="newTitle">书名</label><input id="newTitle" maxlength="80" placeholder="例如：我在末日开了一家便利店"><label for="newGenre">题材风格</label><input id="newGenre" maxlength="40" value="都市脑洞"><label for="newIdea">一句话设定</label><textarea id="newIdea" rows="3" maxlength="1200" placeholder="例如：城市停电后，只有主角的便利店能照常营业"></textarea></div>
+<div data-for="continue custom" hidden><label for="chapters">这次写几章（默认 5 章）</label><input id="chapters" type="number" min="1" max="30" value="5"></div>
+<label for="extra">给它的补充要求（可不填）</label><textarea id="extra" rows="2" maxlength="2000" placeholder="例如：主角不要太圣母；每章结尾留钩子；别写成系统流"></textarea>
+<label for="penSel">笔名（封面和番茄填写单会用它；代理不会自己起笔名）</label><div class="row"><select id="penSel"><option value="">不指定，交付单里标「待填」</option></select><input id="penNew" maxlength="20" placeholder="或输入新笔名"></div>
+<label class="check"><input id="quality" type="checkbox" checked>质量优先（最强模型写稿、另一家模型评审、逐章打磨、额度放宽；取消勾选则用便宜模型快速跑）</label>
+<label class="check"><input id="autoThink" type="checkbox" checked>开启思考模式（更聪明，稍慢稍贵；取消勾选更快更省）</label>
+<label for="simAgent">模拟作者用哪个 AI（操作软件、做判断的那个；写稿用的模型在「质量优先」和清平文坊「模型与 Agent」里定）</label><select id="simAgent"><option value="cheap">读取中…</option></select>
+<button id="autoStart" class="primary big">▶ 开始</button>
+<div class="row" style="margin-top:8px"><button id="openResult" disabled>打开桌面成果文件夹</button></div>
+<p class="muted" id="queueInfo"></p>
+<details style="margin-top:12px"><summary>更多选项（全部可选）</summary>
+<div class="row"><div><label for="budget">预算上限（元，留空自动：质量优先按章数放宽，上限 100）</label><input id="budget" type="number" min="0.05" max="100" step="0.5" placeholder="自动"></div><div><label for="steps">最多步数（留空自动）</label><input id="steps" type="number" min="1" max="400" placeholder="自动"></div></div>
+<div class="row"><div><label for="minutes">最长时间（分钟，留空自动）</label><input id="minutes" type="number" min="1" max="240" placeholder="自动"></div><div><label for="persona">身份</label><select id="persona"><option value="author">签约作者 · 写书（默认，开放全部功能）</option><option value="customer">新手作者 · 体验软件，不同步书库</option><option value="professional">熟练作者 · 对比竞品习惯</option><option value="skeptical">谨慎客户 · 关注费用和稿件安全</option></select></div></div>
+<label for="deliveryWorkspace">成果交付文件夹</label><input id="deliveryWorkspace" placeholder="默认：桌面\\清平文坊-客户成果">
+<label class="check"><input id="writeBack" type="checkbox" checked>完成后把书同步回「我的书库」（会先备份原稿；原稿期间被改过则另存，不覆盖）</label>
+<label class="check"><input id="search" type="checkbox" checked>允许联网搜索公开资料（竞品、爆款书名简介写法）</label><label class="check"><input id="visible" type="checkbox">显示独立的测试浏览器窗口（能看它在点什么）</label><label class="check"><input id="triage" type="checkbox" checked>软件问题入队，攒满 10 条自动唤醒 GPT 修复</label>
+<div id="prices" class="muted"></div><p class="muted">金额依赖配置估价，不是网关硬扣费上限；正在执行的单笔请求可能使预算少量超出。</p>
+</details></div>
+<p id="error" class="error" role="alert"></p>
+<h2 style="margin-top:22px">正在进行的运行</h2><p id="runHint" class="muted" style="margin-top:0"></p><div id="runs" class="row" hidden></div>
+<h2 style="margin-top:22px">实时纠偏（作用于选中的运行）</h2><p class="muted" style="margin-top:0">运行中随时在这里说一句，比如「别写成系统流」「封面换冷色调」，它下一步就会照办。</p>
+<textarea id="correct" placeholder="例如：先不要改稿，重点看导出和历史版本。"></textarea><div class="row"><button id="send">发送纠正</button><button id="pause">暂停</button><button id="resume">继续</button><button id="stop" class="danger">停止</button></div>
+<p class="muted">暂停在下一动作前生效。停止后不再追加初审或唤醒，已有章节仍会交付到桌面。已经提交的服务端任务不保证撤销。</p>
+</section>
+<section>
+<nav class="tabs" role="tablist" id="rtabs"><button role="tab" data-t="log" aria-selected="true">操作与观察</button><button role="tab" data-t="issues" aria-selected="false">DeepSeek 发现的问题<span id="issueBadge" class="badge"></span></button><button role="tab" data-t="books" aria-selected="false">书库与签约</button></nav>
+<div id="t-log"><div id="log" aria-live="polite">尚未开始，不消耗模型额度。</div><p id="wake" class="muted"></p><div id="reports" class="row"></div><div id="report"></div></div>
+<div id="t-issues" hidden>
+<p class="muted" style="margin-top:0">DeepSeek 每一步记下的问题实时出现在这里。你觉得严重，点「发给 GPT 立即修」：这条会以「主办方加急」排进修复队列，并马上唤醒 GPT 工程师（不等攒满 10 条；已有修复任务在跑时不重复唤醒，等它跑完再点一次即可）。</p>
+<h2>本次运行</h2><div id="issueList"><p class="muted">还没有问题。</p></div>
+<h2 style="margin-top:20px">修复队列里待修的问题</h2><div class="row"><span id="wakeInfo" class="muted" style="flex:3"></span><button id="wakeAll" class="warn" style="flex:0 1 auto">立即唤醒 GPT 修复全部待修</button></div><div id="queueList"></div>
+</div>
+<div id="t-books" hidden>
+<p class="muted" style="margin-top:0">书好不好，最终只认编辑签不签。每本书番茄长篇只有 <b>2 万 / 5 万 / 8 万字各 1 次</b>签约机会，三次都被拒就永久不能签，所以投稿前先看「签约体检」把明文拒签项清零。投稿后在这里登记结果；被拒时把编辑原话填进来，下次「打磨」会自动交给 DeepSeek。</p>
+<div id="bookList"><p class="muted">正在读取书库…</p></div>
+</div>
+</section></main>
+<script>
+const token='__TOKEN__', $=id=>document.getElementById(id);let lastLogs='',initialized=false,focus='',tab='log',lastIssueSig='',lastQueueSig='';
+if(new URLSearchParams(location.search).has('embed'))document.body.classList.add('embed');
+const phaseNames={finalizing:'收尾补全书名简介封面',ready:'待命',testing:'进行中',triage:'整理通用意见',complete:'已完成',stopped:'已停止',error:'出现错误','wake-check':'检查工程师唤醒'};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function post(endpoint,body={}){ $('error').textContent='';try{const r=await fetch('/api/'+endpoint,{method:'POST',headers:{'Content-Type':'application/json','X-Lab-Token':token},body:JSON.stringify({runId:focus,...body})});const j=await r.json();if(!r.ok)throw Error(j.error);return j}catch(e){$('error').textContent=e.message;return null}}
+const modeOf=()=>document.querySelector('input[name=mode]:checked').value;
+const num=id=>{const v=Number($(id).value);return Number.isFinite(v)&&v>0?v:undefined};
+function showMode(){const m=modeOf();document.querySelectorAll('[data-for]').forEach(e=>{e.hidden=!e.dataset.for.split(' ').includes(m)});$('autoStart').textContent=m==='new'?'▶ 一键开始（懒人模式）':m==='continue'?'▶ 开始续写':m==='polish'?'▶ 开始打磨（不写新章）':m==='short'?'▶ 开始写短篇':'▶ 开始写这本书'}
+document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=showMode);showMode();
+function showTab(t){tab=t;document.querySelectorAll('#rtabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===t)));for(const k of ['log','issues','books'])$('t-'+k).hidden=k!==t;if(t==='books')loadBooks()}
+$('rtabs').onclick=e=>{const b=e.target.closest('button[data-t]');if(b)showTab(b.dataset.t)};
+$('book').onchange=()=>{const o=$('book').selectedOptions[0];$('bookInfo').textContent=$('book').value?('当前书稿：'+o.textContent+' · '+(o.dataset.ch||0)+' 章 · '+(o.dataset.label||'')):'先选择一本书'};
+$('autoStart').onclick=()=>{const m=modeOf();const body={mode:m,quality:$('quality').checked,penName:($('penNew').value.trim()||$('penSel').value),think:$('autoThink').checked?'on':'off',task:$('extra').value.trim(),persona:$('persona').value,budget:num('budget'),steps:num('steps'),minutes:num('minutes'),deliveryWorkspace:$('deliveryWorkspace').value.trim(),writeBack:$('writeBack').checked,search:$('search').checked,visible:$('visible').checked,triage:$('triage').checked,simAgent:$('simAgent').value};
+if(m==='short'){body.shortChannel=$('shortChannel').value;body.style=$('shortGenre').value;body.idea=$('shortIdea').value.trim()}
+else if(m==='new'){body.style=$('autoStyle').value;body.idea=$('autoIdea').value.trim();body.targetWords=num('targetWords')}
+else if(m==='continue'||m==='polish'){if(!$('book').value){$('error').textContent='请先选择一本书';return}body.book=$('book').value;if(m==='continue')body.chapters=num('chapters');else{body.polishText=$('polishText').checked;body.polishPack=$('polishPack').checked;body.polishCover=$('polishCover').checked}}
+else{body.chapters=num('chapters');body.newBook={title:$('newTitle').value,genre:$('newGenre').value,idea:$('newIdea').value}}
+return post('start',body).then(j=>{if(j){focus=j.id;lastLogs='';showTab('log')}})};
+$('openResult').onclick=()=>post('open-result');
+$('send').onclick=async()=>{if(await post('correct',{text:$('correct').value}))$('correct').value=''};
+for(const action of ['pause','resume','stop'])$(action).onclick=()=>post(action);
+const wakeMsg=w=>{$('wakeInfo').dataset.user='1';$('wakeInfo').textContent=(w.woke?'✅ ':'ℹ ')+w.reason;setTimeout(()=>{delete $('wakeInfo').dataset.user;lastQueueSig=''},20000)};
+$('wakeAll').onclick=async()=>{const j=await post('wake');if(j)wakeMsg(j.wake)};
+function renderRuns(s){const box=$('runs');box.replaceChildren();const list=s.runs||[];box.hidden=list.length===0;const names={new:'懒人开新书',continue:'续写',custom:'按设定新建',polish:'打磨'};list.slice(-8).forEach((r,i)=>{const b=document.createElement('button');b.className=(r.id===s.focusId?'primary ':'')+'runbtn';b.textContent=(r.running?'● ':'○ ')+(r.mode==='polish'?'打磨 · ':'')+(r.book||names[r.mode]||'运行')+(r.paused?'（暂停）':r.running?'':r.phase==='error'?'（出错）':'（已结束）');b.onclick=()=>{focus=r.id;lastLogs='';lastIssueSig='';refresh()};box.append(b)})}
+function renderIssues(s){const list=s.issues||[];$('issueBadge').textContent=list.filter(x=>!x.sent).length||'';const sig=JSON.stringify(list.map(x=>[x.step,x.sent]))+s.focusId;if(sig===lastIssueSig)return;lastIssueSig=sig;const box=$('issueList');box.replaceChildren();if(!list.length){box.innerHTML='<p class="muted">还没有问题。</p>';return}
+for(const x of list.slice().reverse()){const d=document.createElement('div');d.className='issue'+(x.engineerRequest?' req':'')+(x.sent?' sent':'');d.innerHTML=`<p><b>第 ${x.step} 步</b> <span class="muted">${esc(String(x.at).slice(11,19))}${x.engineerRequest?' · DeepSeek 请求工程师':''}</span></p><p>${esc(x.issue)}</p>${x.think?`<p class="muted">它当时在想：${esc(x.think)}</p>`:''}`;const b=document.createElement('button');b.className=x.sent?'mini':'mini warn';b.textContent=x.sent?'已加急发给 GPT':'发给 GPT 立即修';b.disabled=!!x.sent;b.onclick=async()=>{b.disabled=true;const j=await post('escalate',{step:x.step});if(j){wakeMsg(j.wake);lastIssueSig='';refresh()}else b.disabled=false};d.append(b);box.append(d)}}
+function renderQueue(s){const sig=JSON.stringify(s.openIssues||[])+JSON.stringify(s.lastWake||{});if(sig===lastQueueSig)return;lastQueueSig=sig;const box=$('queueList');box.replaceChildren();const lw=s.lastWake||{};if(!$('wakeInfo').dataset.user){const labels={scheduled:'已排队',running:'执行中',succeeded:'已完成',failed:'执行失败',archived:'已归档'};const detail=lw.error?`：${lw.error}`:'';$('wakeInfo').textContent=`待修 ${s.queueOpen} 条，已修 ${s.fixedCount||0} 条。`+(lw.at?`上次唤醒：${new Date(lw.at).toLocaleString('zh-CN')}（${labels[lw.status]||lw.status}${detail}）`:'')};for(const i of s.openIssues||[]){const d=document.createElement('div');d.className='q';d.textContent=`${i.id} [${i.severity}]${i.manual?'【主办方加急】':''}${i.kind==='simulator'?'（模拟器）':''} ${i.title}${i.hits>1?' ×'+i.hits:''}`;box.append(d)}if(!(s.openIssues||[]).length)box.innerHTML='<p class="muted">队列里没有待修的问题。</p>'}
+async function loadBooks(){try{const r=await fetch('/api/books');const j=await r.json();if(!r.ok)throw Error(j.error);const box=$('bookList');box.replaceChildren();if(!j.books.length){box.innerHTML='<p class="muted">「我的书库」里还没有书。</p>';return}
+for(const b of j.books){const m=b.metrics||{};const d=document.createElement('div');d.className='book';const nx=b.next?`下次机会：${b.next.tier}字档${b.next.ready?'（字数已够，可以投）':'，还差 '+b.next.short+' 字'}`:'三次签约机会已用完';
+d.innerHTML=`<h3>${esc(b.name)}${b.folder&&b.folder!==b.name?`<span class="muted" style="font-size:12px;font-weight:normal"> 原名：${esc(b.folder)}</span>`:''}<span class="pill ${b.sign.status}">${esc(b.sign.label)}</span>${b.busy?'<span class="pill">DeepSeek 正在处理</span>':''}</h3><div class="muted">${m.chapters||0} 章 / ${m.chars||0} 字 · 书名 ${m.titleLen||0} 字 · 简介 ${m.introLen||0} 字 · 封面 ${m.cover?'有':'无'} · 开篇段落均 ${m.paraAvg||0} 字 · AI 腔 ${m.ticsPerK??'—'}/千字</div><div class="muted">${esc(nx)}</div>${b.gaps.length?`<ul class="gaps">${b.gaps.map(g=>'<li>'+esc(g)+'</li>').join('')}</ul>`:'<p class="muted" style="color:#06603f">体检没有发现明文拒签项（不代表一定能签）。</p>'}${b.sign.notes.length?`<p class="muted"><b>编辑原话：</b>${b.sign.notes.map(esc).join('；')}</p>`:''}`;
+const row=document.createElement('div');row.className='row';const btn=(t,cls,fn)=>{const x=document.createElement('button');x.className='mini '+(cls||'');x.textContent=t;x.onclick=fn;row.append(x);return x};
+btn('签约体检报告','',()=>post('check',{book:b.id}));btn('打开成果文件夹','',()=>post('open-book',{book:b.id}));
+const st=b.sign.status;if(st!=='signed'){if(st!=='pending')btn('登记：已投稿','',async()=>{if(confirm('登记《'+b.name+'》已在番茄投稿签约？会存下当前体检快照。')&&await post('sign',{book:b.id,event:'submit'}))loadBooks()});
+btn('登记：签约成功','primary',async()=>{if(confirm('登记《'+b.name+'》签约成功？')&&await post('sign',{book:b.id,event:'signed'}))loadBooks()});
+btn('登记：被拒','danger',async()=>{const note=prompt('把编辑的拒签原话（站内信）贴进来，下次打磨会交给 DeepSeek（可留空）：','');if(note===null)return;if(await post('sign',{book:b.id,event:'rejected',note}))loadBooks()})}
+if(b.history.length)btn('撤销上一条登记','',async()=>{if(confirm('撤销最近一条登记？')&&await post('sign',{book:b.id,event:'undo'}))loadBooks()});
+if(st!=='signed'&&b.chapters)btn(st==='rejected'?'按被拒意见打磨':'打磨这本','warn',()=>{document.querySelector('input[name=mode][value=polish]').checked=true;showMode();$('book').value=b.id;$('book').onchange();$('polishText').checked=true;$('polishPack').checked=st==='rejected';$('polishCover').checked=st==='rejected';window.scrollTo({top:0,behavior:'smooth'});$('autoStart').focus()});
+d.append(row);box.append(d)}}catch(e){$('bookList').innerHTML='<p class="error">读取书库失败：'+esc(e.message)+'</p>'}}
+async function refresh(){try{const r=await fetch('/api/state'+(focus?'?run='+encodeURIComponent(focus):''));const s=await r.json();if(!r.ok)throw Error(s.error);$('phase').textContent=s.mode==='pause'?'已暂停':phaseNames[s.phase]||s.phase;if(s.focusId&&!focus)focus=s.focusId;if(!Array.isArray(s.library)){$('error').textContent='这是旧版工作台（读不到书库）。请关掉这个黑色窗口，重新打开管理后台。';$('bookInfo').textContent='旧版工作台，请重开'}renderRuns(s);const full=(s.runningCount||0)>=(s.maxRuns||1);$('autoStart').disabled=full;$('autoStart').title=full?'同时运行已达上限 '+s.maxRuns+' 个':'可同时开多个，互不影响';$('openResult').disabled=!s.deliveryWorkspace;
+{const sig=JSON.stringify(s.pens||[]);if($('penSel').dataset.sig!==sig){const cur=$('penSel').value;$('penSel').dataset.sig=sig;$('penSel').replaceChildren(new Option('不指定，交付单里标「待填」',''));for(const n of s.pens||[])$('penSel').append(new Option(n,n));$('penSel').value=cur||s.lastPen||''}}
+if(!$('autoStyle').dataset.ok&&s.styles?.length){for(const x of s.styles){const o=document.createElement('option');o.value=x.label;o.textContent=x.label;$('autoStyle').append(o)}$('autoStyle').dataset.ok='1'}
+$('queueInfo').textContent=s.queueOpen>=0?`DeepSeek 反馈的待修问题：${s.queueOpen} / 10 条，攒满 10 条自动唤醒 GPT 修复；严重的可以在右边「DeepSeek 发现的问题」里手动加急。`:'';for(const id of ['send','pause','resume','stop'])$(id).disabled=!s.running;$('runHint').textContent='同时运行 '+(s.runningCount||0)+' / '+(s.maxRuns||1)+'。可以连点「开始」并发多本（同一本书不能同时处理）；日志、问题、纠偏、暂停、停止只作用于你选中的那一个。';
+{const cur=$('book').value,sig=JSON.stringify(s.library||[]);if($('book').dataset.sig!==sig){$('book').dataset.sig=sig;$('book').replaceChildren(new Option('请选择',''));for(const x of s.library||[]){const o=new Option(x.name+'（'+x.chapters+' 章 · '+x.label+'）',x.id);o.dataset.ch=x.chapters;o.dataset.label=x.label;$('book').append(o)}$('book').value=cur}}
+{const sig=JSON.stringify(s.simAgents||[]);if(s.simAgents&&$('simAgent').dataset.sig!==sig){const cur=$('simAgent').value;$('simAgent').dataset.sig=sig;$('simAgent').replaceChildren();for(const a of s.simAgents){const o=new Option(a.label+(a.ready?'':'（未配置密钥）'),a.id);o.disabled=!a.ready;$('simAgent').append(o)}$('simAgent').value=s.simAgents.some(a=>a.id===cur&&a.ready)?cur:'cheap'}}
+if(!$('shortChannel').dataset.ok&&s.shortChannels?.length){for(const c of s.shortChannels)$('shortChannel').append(new Option(c.name,c.name));for(const g of s.shortGenres||[])$('shortGenre').append(new Option(g,g));$('shortChannel').dataset.ok='1'}
+{const a=(s.simAgents||[]).find(x=>x.id===$('simAgent').value)||{};$('prices').textContent=`模拟作者：${a.model||s.model||'未配置'}；配置估价 ¥${a.priceIn??s.priceIn??0}/百万输入、¥${a.priceOut??s.priceOut??0}/百万输出。`}$('wake').textContent=s.wake;
+const logs=s.logs.join('');if(logs!==lastLogs){$('log').textContent=logs||'尚未开始，不消耗模型额度。';$('log').scrollTop=$('log').scrollHeight;lastLogs=logs}if(s.error)$('error').textContent=s.error;
+renderIssues(s);renderQueue(s);
+$('reports').replaceChildren();for(const f of s.reports){const b=document.createElement('button');b.textContent='查看测试报告';b.onclick=async()=>{const j=await(await fetch('/api/report?name='+encodeURIComponent(f))).json();$('report').textContent=j.text||j.error};$('reports').append(b)}
+}catch(e){$('error').textContent='工作台连接已断开：'+e.message}}
+refresh();setInterval(refresh,1000);setInterval(()=>{if(tab==='books')loadBooks()},15000);
+</script></body></html>

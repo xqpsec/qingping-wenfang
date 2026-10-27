@@ -1,0 +1,35 @@
+# --- secrets and runtime state (never commit) ---
+.env
+**/.env
+workshop/data/*
+!workshop/data/.gitkeep
+!workshop/data/baseline-262.json
+workshop/deploy/users/
+workshop/deploy/users.json
+workshop/deploy/admin-tiers.json
+workshop/deploy/env/
+workshop/deploy/Caddyfile
+
+# --- user content: books, candidate drafts, history ---
+projects/*
+!projects/.gitkeep
+!projects/genres/
+!projects/genres/**
+
+# --- logs and scratch ---
+*.log
+*.ndjson
+tmp/
+out/
+
+# --- there are no dependencies, but keep the usual guard ---
+node_modules/
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~

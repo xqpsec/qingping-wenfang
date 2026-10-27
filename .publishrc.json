@@ -1,0 +1,13 @@
+{
+  "repo": "qingping-wenfang",
+  "title": "清平文坊",
+  "description": "Local-first studio for long-form web novels: multi-candidate drafts, pairwise LLM judging, rubric scoring. Node, zero deps.",
+  "topics": ["llm", "writing", "novel", "web-novel", "multi-agent", "local-first", "self-hosted", "nodejs", "ai-writing"],
+  "private": false,
+  "branch": "main",
+  "authorName": "Qingping Wenfang",
+  "authorEmail": "noreply@example.com",
+  "scan": {
+    "allow": ["platform-name", "email", "local-path-user", "windows-path", "secret-assign", "private-ip", "bearer"]
+  }
+}

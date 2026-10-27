@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>清平文坊 · 番茄都市脑洞</title>
+<style>
+  :root { --bg:#f6f3ee; --card:#fff; --ink:#222; --sub:#666; --pri:#e8541e; --pri2:#fff1ea; --ok:#1f8a4c; --warn:#c77700; --bad:#c62828; --line:#e6e0d6; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:var(--ink); font-size:17px; line-height:1.6; }
+  header { background:var(--pri); color:#fff; padding:14px 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  header h1 { font-size:22px; margin:0; }
+  header .spent { margin-left:auto; font-size:15px; opacity:.95; }
+  header button { background:#fff; color:var(--pri); border-color:#fff; }
+  main { max-width:1100px; margin:0 auto; padding:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:18px; }
+  h2 { font-size:20px; margin:0 0 12px; }
+  h3 { font-size:17px; margin:14px 0 6px; }
+  button { font-size:17px; padding:10px 22px; border-radius:10px; border:1px solid var(--pri); background:var(--pri); color:#fff; cursor:pointer; font-family:inherit; }
+  button.ghost { background:#fff; color:var(--pri); }
+  button.small { font-size:15px; padding:6px 14px; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  button:focus-visible, textarea:focus-visible, select:focus-visible, input:focus-visible { outline:3px solid #ffb38f; outline-offset:2px; }
+  textarea, input[type=text], input[type=password], input[type=number], select { font-size:16px; font-family:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  textarea { width:100%; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  .muted { color:var(--sub); font-size:15px; }
+  .steps { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .steps button { padding:6px 16px; border-radius:20px; font-size:15px; background:#ece6dc; color:#555; border:2px solid transparent; }
+  .steps button.done { background:var(--pri); color:#fff; }
+  .steps button.cur { border-color:#7a2a0b; box-shadow:0 0 0 2px #ffd2bd; }
+  .concept { border:2px solid var(--line); border-radius:12px; padding:16px; margin-bottom:12px; white-space:pre-wrap; font-size:15px; }
+  .concept h3 { margin:0 0 6px; font-size:19px; color:var(--pri); white-space:normal; }
+  .booklist .bk { display:flex; align-items:center; gap:14px; padding:12px; border-bottom:1px solid var(--line); }
+  .booklist .bk:last-child { border-bottom:0; }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  .score { font-weight:bold; padding:2px 10px; border-radius:12px; color:#fff; display:inline-block; min-width:44px; text-align:center; background:#999; }
+  .g { background:var(--ok); } .y { background:var(--warn); } .r { background:var(--bad); }
+  .busy { position:sticky; top:0; z-index:5; background:#fff7d6; border:1px solid #f0d27a; border-radius:10px; padding:12px 16px; margin-bottom:16px; white-space:pre-wrap; }
+  /* 开书实时看板（2026-10-03）：步骤条 + 真进度 + 思维摘要 + 书在眼前长出来 */
+  .busy.live { background:#fff; border-color:var(--line); white-space:normal; padding:14px 16px; }
+  .lv-head { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; font-weight:600; }
+  .lv-steps { display:flex; gap:6px; margin:10px 0 8px; flex-wrap:wrap; padding:0; list-style:none; }
+  .lv-steps li { flex:1; min-width:84px; text-align:center; font-size:13px; padding:6px 4px; border-radius:8px; background:#f3efe8; color:var(--sub); }
+  .lv-steps li.on { background:var(--pri2); color:var(--pri); font-weight:700; outline:2px solid var(--pri); }
+  .lv-steps li.ok { background:#e8f5ec; color:var(--ok); }
+  .lv-bar { height:8px; background:#f3efe8; border-radius:4px; overflow:hidden; }
+  .lv-bar > i { display:block; height:100%; background:linear-gradient(90deg,#ff8a50,var(--pri)); transition:width .8s ease; }
+  .lv-think { margin:10px 0 4px; color:#5a4a3a; font-size:14px; min-height:1.4em; }
+  .lv-think::before { content:'💭 '; }
+  .lv-card { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-top:10px; }
+  .lv-card div { background:#faf7f2; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px; }
+  .lv-card div.nw, .lv-ch li.nw { animation:lvIn .4s ease; }
+  .lv-card b { display:block; color:var(--sub); font-weight:500; font-size:12px; margin-bottom:2px; }
+  .lv-ch { margin:10px 0 0; padding-left:0; list-style:none; font-size:13px; columns:2; column-gap:16px; }
+  .lv-ch li { break-inside:avoid; padding:2px 0; }
+  .lv-foot { margin-top:10px; font-size:12px; color:var(--sub); }
+  .lv-warn { margin-top:8px; font-size:13px; color:var(--warn); }
+  @keyframes lvIn { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:none } }
+  @media (prefers-reduced-motion: reduce) { .lv-card div.nw, .lv-ch li.nw { animation:none } .lv-bar > i { transition:none } }
+  .err { background:#fdecea; border-color:#f5b5ae; }
+  .reader { white-space:pre-wrap; font-size:18px; line-height:1.9; max-height:70vh; overflow:auto; padding:12px 18px; background:#fffdf9; border:1px solid var(--line); border-radius:10px; }
+  .dims { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px; }
+  .dim { border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:14px; }
+  .dim b { font-size:16px; }
+  .bar { height:8px; background:#eee; border-radius:4px; overflow:hidden; margin-top:4px; }
+  .bar i { display:block; height:100%; background:var(--pri); }
+  .tabs button { background:#fff; color:var(--ink); border-color:var(--line); }
+  .tabs button.on { background:var(--pri2); border-color:var(--pri); color:var(--pri); }
+  .hide { display:none !important; }
+  details summary { cursor:pointer; color:var(--pri); }
+  .tip { background:var(--pri2); border-radius:10px; padding:10px 14px; font-size:15px; }
+  .guide { border:2px solid #f0b08f; background:#fffaf6; }
+  .guide ol { margin:8px 0 8px 24px; padding:0; }
+  .guide li { margin:5px 0; }
+  .feature-help { background:#fffaf6; border-left:4px solid var(--pri); padding:10px 14px; margin:10px 0 14px; font-size:15px; }
+  .feature-help b { color:var(--pri); }
+  .feature-help span { color:var(--sub); }
+  .agent { border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:12px; }
+  .agent .grid { display:grid; grid-template-columns:120px 1fr; gap:6px 10px; align-items:center; }
+  .agent .grid input { width:100%; }
+  .assign { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:6px 16px; }
+  .assign label { display:flex; justify-content:space-between; gap:8px; align-items:center; font-size:15px; }
+  .tcand { border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-bottom:6px; display:flex; gap:10px; align-items:center; }
+  .tcand.rec { border-color:var(--pri); background:var(--pri2); }
+  .bad { color:var(--bad); } .good { color:var(--ok); }
+  .metabox { border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin-top:12px; background:#fffdf9; }
+  .mgrp { margin:10px 0; }
+  .mgrp .chips { display:flex; flex-wrap:wrap; gap:6px; max-height:132px; overflow:auto; padding:6px; border:1px solid var(--line); border-radius:8px; background:#fff; margin-top:4px; }
+  .chip { font-size:14px; padding:3px 10px; border:1px solid var(--line); border-radius:14px; background:#fff; color:inherit; cursor:pointer; }
+  .chip.on { background:var(--pri); border-color:var(--pri); color:#fff; }
+  .mgrp .mfilter { width:120px; font-size:13px; padding:2px 6px; margin-left:8px; }
+  pre.box { white-space:pre-wrap; background:#faf7f2; border:1px solid var(--line); border-radius:8px; padding:10px; font-size:14px; margin:4px 0; font-family:inherit; }
+
+  /* ══ 2026-10-02 简洁版外观 + 简单模式 + 手指引导 ══ */
+  body { background:linear-gradient(180deg,#fff5ee 0,#f6f3ee 320px); }
+  header { background:linear-gradient(135deg,#ff8a50,#e8541e 60%,#c9410f); box-shadow:0 2px 12px rgba(200,65,15,.25); }
+  .card { border:0; box-shadow:0 2px 14px rgba(120,70,30,.08); border-radius:16px; }
+  button { transition:transform .08s, box-shadow .15s; }
+  button:not(:disabled):hover { box-shadow:0 3px 10px rgba(232,84,30,.25); }
+  button:not(:disabled):active { transform:scale(.97); }
+  button.big { font-size:20px; padding:14px 32px; border-radius:14px; font-weight:bold; }
+  .steps button { border-radius:22px; }
+  header .modebtn { margin-left:auto; }
+  header .spent { margin-left:0; }
+  .simple-only, .hero .flow.simple-only { display:none; }
+  body.simple .simple-only { display:block; }
+  body.simple .hero .flow.simple-only { display:flex; }
+  body.simple .pro-only, body.simple .feature-help { display:none !important; }
+  body.simple #reportCard details, body.simple #reportCard > p.muted, body.simple #hist p.muted { display:none; }
+  .hero h2 { font-size:24px; }
+  .hero .flow { display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 14px; }
+  .hero .flow span { background:var(--pri2); color:#a33a10; border-radius:20px; padding:4px 14px; font-size:15px; }
+  #idea { font-size:18px; border:2px solid #f3c9b3; border-radius:12px; padding:12px; }
+  /* 手指引导 */
+  #coachFinger { position:fixed; z-index:50; font-size:44px; pointer-events:none; filter:drop-shadow(0 3px 4px rgba(0,0,0,.3)); animation:tap 1s ease-in-out infinite; }
+  #coachBubble { position:fixed; z-index:51; max-width:300px; background:#2b2118; color:#fff; border-radius:12px; padding:10px 14px; font-size:16px; line-height:1.5; box-shadow:0 6px 20px rgba(0,0,0,.25); }
+  #coachBubble a { color:#ffb38f; font-size:14px; cursor:pointer; text-decoration:underline; margin-left:8px; }
+  .coach-target { outline:4px solid #ffb38f !important; outline-offset:3px; border-radius:12px; animation:glow 1.4s ease-in-out infinite; }
+  /* 多创作风格：一排大按钮 + 展开的小按钮 + 输入框 */
+  .stylegrid { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .stylegrid button.styleBtn { background:#fff; color:var(--pri); border:2px solid var(--line); border-radius:12px; padding:8px 14px; text-align:left; line-height:1.25; font-size:15px; }
+  .stylegrid button.styleBtn .tl { display:block; font-weight:600; }
+  .stylegrid button.styleBtn .tg { display:block; font-size:12px; color:var(--sub); font-weight:400; }
+  .stylegrid button.styleBtn.on { border-color:var(--pri); background:#fff5ec; box-shadow:0 0 0 2px rgba(255,150,90,.18); }
+  #styleMore button.styleBtn { padding:6px 10px; font-size:14px; }
+  #styleCustom { width:100%; box-sizing:border-box; padding:10px; border:2px solid var(--line); border-radius:10px; font-size:15px; font-family:inherit; }
+  #styleCustom.on { border-color:var(--pri); background:#fff5ec; }
+  #customBox .muted { margin-top:4px; }
+  @keyframes tap { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-10px) } }
+  @keyframes glow { 0%,100% { box-shadow:0 0 0 0 rgba(232,84,30,.45) } 50% { box-shadow:0 0 0 10px rgba(232,84,30,0) } }
+  @media (prefers-reduced-motion:reduce) { #coachFinger, .coach-target { animation:none; } }
+  @media (max-width:640px) { main { padding:12px; } .card { padding:16px; } button.big { width:100%; } header h1 { font-size:19px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 清平文坊</h1><span>番茄 · 长篇 · 多风格</span>
+  <button class="small ghost modebtn" id="btnCoach" title="重新显示手指引导">👆 新手引导</button>
+  <button class="ghost" id="btnMode" title="简单模式只留最常用的按钮；专业模式显示全部设置">切换到专业模式 ▸</button>
+  <button class="small pro-only" id="btnAgents">⚙ 模型与 Agent</button>
+  <button class="small ghost" id="btnShorts">✍ 短篇投稿</button>
+  <button id="btnFeedback" title="遇到问题或想提建议，点这里告诉我们">💬 遇到问题？反馈</button>
+  <span id="tierBox" class="hide"></span><!-- 2026-10-02 内测用户模式：档位选择（快写档/精修） -->
+  <span class="spent" id="spent">今日花费 —</span>
+</header>
+<main>
+  <div id="verWarn" class="busy err hide" role="alert"></div>
+  <div id="busy" class="busy hide" role="status" aria-live="polite"></div>
+
+  <!-- 客户反馈：自动客服会先答复，连续追问保留在线程里 -->
+  <section id="feedbackPage" class="hide">
+    <div class="row" style="margin-bottom:12px"><button class="ghost small" id="btnBackFeedback">← 返回</button><h2 style="margin:0">反馈与帮助</h2></div>
+    <div class="card">
+      <h2>告诉我你遇到了什么</h2>
+      <p class="muted">提交后会立即得到自动答复；如果是产品问题，会自动进入改进队列，不需要你反复解释。</p>
+      <select id="feedbackPageContext" aria-label="反馈所在页面"><option value="首页">首页</option><option value="书页">书页</option><option value="章节页">章节页</option></select>
+      <textarea id="feedbackText" rows="5" maxlength="2000" placeholder="例如：我找不到第一章；或者：点了人工润色后一直没结果"></textarea>
+      <div class="row" style="margin-top:8px"><button id="btnSubmitFeedback">提交反馈</button><span class="muted" id="feedbackMsg" role="status"></span></div>
+    </div>
+    <div class="card"><h2>我的反馈</h2><div id="feedbackList"><p class="muted">还没有反馈记录</p></div></div>
+  </section>
+
+  <!-- 首页 -->
+  <section id="home">
+    <div class="card guide pro-only" id="newbieGuide">
+      <h2>新手一步一步</h2>
+      <ol>
+        <li>先写一句你想看的故事，点「帮我出 3 个开书方案」。</li>
+        <li>挑一个方案，进入书页后点「写下一章」；不满意可先不采用。</li>
+        <li>在「书名·简介·封面」完善作品包装，封面和正文都能单独下载。</li>
+        <li>最后到「导出与交付」，下载全书 TXT 和作品信息，再由你检查后上传。</li>
+      </ol>
+      <button class="ghost small" id="hideGuide">我知道了，隐藏指导</button>
+    </div>
+    <div class="card hero">
+      <h2>✨ 开一本新书</h2>
+      <div class="flow simple-only"><span>① 先选风格</span><span>② 说一句想写什么</span><span>③ 挑一个方案</span></div>
+      <div id="styleBlock">
+        <label class="muted">① 先选你想写的风格</label>
+        <div id="styleFeat" class="stylegrid"></div>
+        <div class="row" style="margin-top:8px"><button id="btnMoreStyles" class="ghost small">更多风格 ▾</button><button id="btnCustomStyle" class="ghost small">✏ 自己写风格</button><span class="muted" id="styleMsg"></span></div>
+        <div id="styleMore" class="stylegrid hide" style="margin-top:8px"></div>
+        <div id="customBox" class="hide" style="margin-top:8px">
+          <input id="styleCustom" type="text" maxlength="200" placeholder="例如：女主重生回到高考前，冷静复仇，不恋爱脑">
+          <div class="muted" id="styleCustomHint">写清人物、场景、冲突和想要的味道；留空就按都市脑洞。</div>
+        </div>
+      </div>
+      <div id="voiceBlock" style="margin:4px 0 12px">
+        <label class="muted">文风（怎么写，可以不选）：</label>
+        <div id="voiceRow" class="row" style="gap:6px;flex-wrap:wrap;margin-top:4px"></div>
+        <div class="row" style="gap:6px;margin-top:6px;align-items:center"><span class="muted">玩梗：</span><span id="memeRow" class="row" style="gap:6px"></span><span class="muted" id="voiceMsg"></span></div>
+      </div>
+      <label for="idea" class="muted">② 你想写一个什么故事？一句话就行，不写也可以</label>
+      <textarea id="idea" rows="2" placeholder="例如：外卖员送单能看到顾客的秘密；或者：写一个跟直播有关的"></textarea>
+      <div class="feature-help"><b>开书方案：</b>把一句想法变成可写的书名、设定和冲突。<span>你不懂写作也能从候选方案开始，先挑喜欢的再动手，不会直接改你的原稿。</span></div>
+      <div class="row" style="margin-top:10px"><button id="btnConcepts" class="big" data-job>帮我出 3 个开书方案</button><span class="muted">约 1 分钟</span></div>
+      <div id="concepts" style="margin-top:14px"></div>
+    </div>
+    <div class="card" id="importCard">
+      <h2>📥 已经写了一部分？导入接着写</h2>
+      <p class="muted" style="margin:0 0 8px">选你电脑里的 TXT 或 Markdown 文件，按「第1章、第2章……」自动分好章。导入不花钱；之后点「写下一章」，AI 会先读你的原稿再接着写。风格按上面选的来。</p>
+      <div class="row"><input id="impTitle" type="text" maxlength="30" placeholder="书名" style="max-width:260px"><input id="impFile" type="file" accept=".txt,.md,.markdown,text/plain"><button id="btnImport" class="big">导入</button></div>
+      <p id="impMsg" class="muted" style="margin:8px 0 0"></p>
+    </div>
+    <div class="card" id="toolsHomeCard">
+      <details>
+        <summary><b>🧰 创意工具箱</b>（不用先开书：起书名、写简介、取名、找脑洞）</summary>
+        <div id="thRoot" style="margin-top:12px"><p class="muted">工具加载中…</p></div>
+      </details>
+    </div>
+    <div class="card">
+      <h2>📚 我的书</h2>
+      <div id="books" class="booklist"><p class="muted">还没有书</p></div>
+    </div>
+  </section>
+
+  <!-- 短篇投稿 -->
+  <section id="shortPage" class="hide">
+    <div class="row" style="margin-bottom:12px"><button class="ghost small" id="btnBackShort">← 返回首页</button><h2 style="margin:0">短篇投稿</h2></div>
+    <div class="card">
+      <h2>一键写短篇</h2>
+      <p class="muted">先选投稿渠道和题材，灵感可以只写一句。工坊会按渠道字数和格式自动产出正文、投稿包和质量报告。</p>
+      <label for="shortChannel">投稿渠道</label><select id="shortChannel" aria-label="选择投稿渠道" style="width:100%;margin-top:4px"></select>
+      <p id="shortChannelHint" class="tip" role="status" style="margin:8px 0"></p>
+      <label for="shortGenre">题材</label><select id="shortGenre" aria-label="选择短篇题材" style="width:100%;margin-top:4px"></select>
+      <label for="shortIdea" style="display:block;margin-top:8px">一句灵感（可不填）</label><textarea id="shortIdea" rows="2" maxlength="500" placeholder="例如：婆婆把我女儿的救命钱拿去给小叔买房"></textarea>
+      <p class="muted">质量分是 AI 模拟读者给的，不是编辑结论；投稿前请自己通读修改</p>
+      <div class="row"><button id="btnShortNew" class="big" data-job>一键写短篇</button><span id="shortExclusive" class="muted" role="status"></span></div>
+    </div>
+    <div class="card"><h2>已写短篇</h2><div id="shortList"><p class="muted">正在加载…</p></div></div>
+    <div class="card hide" id="shortDetail"><div class="row" style="justify-content:space-between"><h2 id="shortDetailTitle" style="margin:0"></h2><button class="ghost small" id="btnShortClose">关闭详情</button></div><p id="shortDetailMeta" class="muted"></p><div class="tabs row"><button id="shortTabBody" class="on" type="button">正文</button><button id="shortTabPackage" type="button">投稿包</button></div><pre class="box" id="shortDetailText" style="max-height:60vh;overflow:auto;font-size:16px;line-height:1.8"></pre><div class="row"><button class="small" id="shortCopy">复制</button><button class="small ghost" id="shortDownload">下载 .txt</button></div></div>
+  </section>
+
+  <!-- 模型与 Agent -->
+  <section id="agentsPage" class="hide">
+    <div class="row" style="margin-bottom:12px"><button class="ghost small" id="btnBackA">← 返回</button><h2 style="margin:0">模型与 Agent</h2></div>
+    <div class="card">
+      <p class="tip">每个 agent 是一套「名称 + Base URL + API Key + 模型」。下面的「任务分配」决定流水线每一步用哪个 agent。<br>
+        出现 <b>HTTP 402 余额不足</b>：说明那个 agent 的服务商账户没钱了 —— 去它的后台充值，或者把用到它的任务改派给另一个 agent，保存后回章节页点「重做评审报告」。<br>
+        API Key 只保存在本机 <code>workshop/data/agents.json</code>，界面只显示末 4 位；留空表示不修改。</p>
+      <div id="agentList"></div>
+      <div class="row"><button class="ghost small" id="btnAddAgent">＋ 新增 agent</button></div>
+    </div>
+    <div class="card">
+      <h2>任务分配</h2>
+      <div class="assign" id="assignList"></div>
+      <div class="row" style="margin-top:14px"><button id="btnSaveAgents">保存</button><span class="muted" id="agentsMsg" role="status"></span></div>
+    </div>
+    <div class="card">
+      <details><summary>最近的模型调用（排错用）</summary><div id="calls" style="margin-top:8px"></div></details>
+    </div>
+  </section>
+
+  <!-- 书页 -->
+  <section id="bookPage" class="hide">
+    <div class="row" style="margin-bottom:12px"><button class="ghost small" id="btnBack">← 返回首页</button><h2 id="bookTitle" style="margin:0"></h2><span class="muted" id="bookStyle"></span></div>
+    <div class="row" id="heatRow" style="margin:-4px 0 12px;gap:6px;align-items:center"><span>情绪浓度：</span><button class="small ghost heatBtn" data-h="calm" title="按原样写，节奏平稳">稳</button><button class="small ghost heatBtn" data-h="hot" title="冲突更早、情绪更满，适合嫌平淡的时候">🔥 燃</button><button class="small ghost heatBtn" data-h="blast" title="开局即高潮，章章有爆点">💥 炸</button><span class="muted" id="heatNote">嫌平淡就选「燃」，从下一章（含改写）开始生效，不额外花积分</span></div>
+    <div class="row" id="bookVoiceRow" style="margin:-4px 0 12px;gap:6px;align-items:center"><label for="bookVoice">文风：</label><select id="bookVoice"></select><label for="bookMeme">玩梗：</label><select id="bookMeme"></select><span class="muted" id="bookVoiceNote">改了从下一章（含改写）开始生效，不额外花积分</span></div>
+    <nav class="steps" id="steps" aria-label="书的阶段">
+      <button data-p="pConcept">开书</button>
+      <button data-p="pBible">设定集</button>
+      <button data-p="pWrite">写正文</button>
+      <button data-p="pPack">改名·简介·封面</button>
+      <button data-p="pExport">导出上传番茄</button>
+      <button data-p="pTools">🧰 创意工具箱</button>
+    </nav>
+
+    <div id="pConcept" class="panel card">
+      <h2>开书方案</h2>
+      <p class="muted">这本书是从下面这个方案开的。想换书名或简介，去「书名·简介·封面」。</p>
+      <div class="reader" id="conceptText" style="font-size:15px"></div>
+    </div>
+
+    <div id="pBible" class="panel card hide">
+      <h2>设定集</h2><p class="feature-help"><b>设定集和章纲：</b>这是整本书的“地图”，决定人物、世界和后续章节方向。<span>可以直接查看和修改，先把设定看懂，再开始写正文，连续写作更稳定。</span></p>
+      <div class="reader" id="bible" style="font-size:15px"></div>
+      <p class="tip simple-only">人物不用你填：AI 会按上面的设定自动保持前后一致。想手动锁定人物信息，点右上角「简单模式」切到专业模式。</p>
+      <div class="pro-only">
+      <h3>人物事实卡</h3>
+       <p class="muted">把会影响长篇一致性的事实写在这里。生成和改写会优先遵守；AI 只会给建议，不会自动改动人物卡。</p>
+       <div id="characterCards"></div>
+       <div class="row" style="margin-top:8px"><button class="ghost small" id="addCharacter">＋ 添加人物</button><button class="small" id="saveCharacters">保存人物卡</button><span class="muted" id="characterMsg" role="status"></span></div>
+      </div>
+       <h3>章纲</h3>
+      <div class="reader" id="outline" style="font-size:15px"></div>
+    </div>
+
+    <div id="pWrite" class="panel hide">
+      <div class="card">
+        <div class="row">
+          <button id="btnWrite1" class="big" data-job>✍ 写下一章</button>
+          <button class="ghost" id="btnWrite3" data-job>连写 3 章</button>
+          <span class="muted" id="bookStat"></span>
+        </div>
+        <p class="feature-help"><b>自动写文：</b>点「写下一章」后，系统会按设定和前文续写，并让评审员挑出更合适的一版。<span>每章都能单独查看和回退；它是帮你起草，不是替你自动发布。</span></p>
+        <p class="muted" id="planStat" style="margin:8px 0 0"></p>
+        <p class="feature-help"><b>评审打分：</b>它检查节奏、冲突、人物和章末钩子，帮助你先发现问题。<span>评分是参考，不是替你决定；你可以阅读原文后再选择改不改。</span></p>
+        <p class="tip simple-only" style="margin-top:12px">点上面的按钮，AI 写一章（约 2–4 分钟）。写好后在下面的表里点「打开」看正文。分数 <span class="score g">70+</span> 可以直接用。</p>
+        <p class="tip pro-only" style="margin-top:12px">每章会同时写 <b id="candN">2</b> 个版本，由评审员挑出最好看的一版，并按你所选风格的番茄爆款标准打分。分数 <span class="score g">70+</span> 可以直接用；<span class="score y">55–69</span> 建议点「按建议改写」；<span class="score r">55 以下</span> 建议删掉重写。</p>
+        <div class="row pro-only">
+          <label>每章写几个版本：<select id="candSel"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+          <label>人工润色器：<select id="polishSel"></select></label><span class="muted">关闭=不改；规则版=免费快速；LLM版=Pro细致润色</span>
+          <label><input type="checkbox" id="autoPolish"> 写完每章自动润色出一版候选</label>
+        </div>
+        <p class="muted pro-only" id="polishHint" style="margin:6px 0 0"></p>
+      </div>
+      <div class="card pro-only" id="agentCard">
+        <div class="feature-help"><b>智能代理（Beta）：</b>你只说一句目标，它会自己写章、看评审、必要时改写，再停下来给你看结果。<span>适合不想一步步点按钮的人；过程中可暂停、纠正或停止，已完成的成果会保留。</span></div>
+         <div class="row"><label><input type="checkbox" id="agentBeta"> <b>智能代理（Beta）</b></label><span class="muted">默认关闭。打开后，你给一句指令，代理按「写章 → 看评审 → 必要时改写」自己推进，做完目标自动停止。</span></div>
+        <div id="agentBox" class="hide" style="margin-top:10px">
+          <div id="agentSetup">
+            <label class="muted" for="agIns">你想让代理做什么（先看计划，点「确认开始」才会真的动手，不确认不花钱）</label>
+            <textarea id="agIns" rows="2" maxlength="1000" placeholder="例如：接着往下写 3 章；每章写完看评审，低于 60 分的改一次；节奏要快一点，别拖"></textarea>
+            <div class="row" style="margin-top:6px"><label>最多写 <input type="number" id="agCh" value="3" min="0" max="10" style="width:60px"> 章</label><label>预算上限 ¥<input type="number" id="agBudget" value="1.5" min="0.1" step="0.1" style="width:70px"></label><label><input type="checkbox" id="agPack" checked> 允许生成书名/简介</label><label><input type="checkbox" id="agCover"> 允许生成封面</label></div>
+            <div class="row" style="margin-top:8px"><button id="btnAgPlan" data-job>让代理拟计划</button><span class="muted">拟计划只花几分钱</span></div>
+          </div>
+          <div id="agentRun" class="hide">
+            <pre class="box" id="agPlan"></pre>
+            <div class="row" id="agBtns"></div>
+            <div class="row" style="margin-top:8px"><input type="text" id="agGuide" style="flex:1" maxlength="500" placeholder="随时给代理一句引导，例如：下一章主角别再被打了，让他反击一次"><button class="ghost" id="btnAgGuide">发送引导</button></div>
+            <p class="muted" id="agStat" style="margin:8px 0 0"></p>
+            <details open><summary>代理的行动记录</summary><div class="reader" id="agLog" style="font-size:14px;white-space:pre-wrap"></div></details>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>章节</h2><p class="muted pro-only">第一次使用：点某一行的「打开第N章（阅读/修改）」先看正文；觉得故事不对用“改写”，只是想让文字更像人工写作用“人工润色”。</p>
+        <table><thead><tr><th>章</th><th>章名</th><th>字数</th><th>评分</th><th>追读意愿</th><th>章末钩子</th><th></th></tr></thead><tbody id="chapters"></tbody></table>
+        <p class="muted" id="noCh">还没有章节，点上面的「写下一章」。</p>
+        <div class="row" style="margin-top:10px"><button class="ghost small" id="btnDrop" data-job>删掉最后一章（可重写）</button></div>
+      </div>
+      <div class="card pro-only"><details><summary>查看进度日志</summary><div class="reader" id="log" style="font-size:14px"></div></details></div>
+    </div>
+
+    <div id="pPack" class="panel hide">
+      <div class="card">
+        <div class="feature-help"><b>书名·简介·封面：</b>把正文整理成读者看得懂、可以上传的作品资料。<span>参考同类爆款，但每一项都由你最后确认，随时可以修改。</span></div>
+       <h2>包装编辑</h2>
+        
+         <p class="muted pro-only" id="packHint">包装编辑会先拆当前同类在读最高的书名和简介的句式，再给出 5 个书名候选、简介、标签和封面 AI 生图提示词；另一个 agent 扮演番茄读者给书名打点击意愿。用哪个模型在「⚙ 模型与 Agent」里改（任务：包装编辑 / 包装试读评审）。</p>
+        <label for="packIns" class="muted">我的意见（可以不填）</label>
+        <textarea id="packIns" rows="2" placeholder="例如：书名要带「收容所」；简介第一句直接上冲突；封面要夜景、警服"></textarea>
+        <div class="row" style="margin-top:8px"><button id="btnPack" data-job>生成 / 重新生成包装方案</button><span class="muted">约 1 分钟</span></div>
+        <div id="packDraft" style="margin-top:14px"></div>
+      </div>
+      <div class="card">
+        <h2>当前采用的包装（可直接改）</h2>
+        <label class="muted" for="fTitle">书名</label>
+        <input type="text" id="fTitle" style="width:100%" maxlength="15" placeholder="番茄书名上限 15 个字（含标点）"><span class="muted" id="titleLen"></span>
+        <label class="muted" for="fIntro" style="display:block;margin-top:10px">简介 <span id="introLen"></span></label>
+        <textarea id="fIntro" rows="7"></textarea>
+        <div class="metabox" id="metaBox">
+          <h3 style="margin:0 0 4px">番茄「创建作品」页要填的信息</h3>
+          <p class="muted" style="margin:0 0 8px">选项和番茄页面上的一模一样（只能点选，不能乱写）。选好点下面的「保存」，导出时会按番茄页面的顺序列给你。</p>
+          <div class="box" id="mSummary" style="margin:0 0 8px;white-space:pre-wrap" aria-live="polite"></div>
+          <div class="row"><b>目标读者</b><label><input type="radio" name="mAud" value="male"> 男频</label><label><input type="radio" name="mAud" value="female"> 女频</label><span class="muted">换了会清空下面的阅读标签</span></div>
+          <div class="row"><b>签约模式</b><label><input type="radio" name="mSign" value="serial"> 连载模式</label><label><input type="radio" name="mSign" value="complete"> 完本模式</label><span class="muted">创建后不能改；一般选连载</span></div>
+          <div class="muted" id="mSignNote"></div>
+          <div id="mGroups"></div>
+          <div class="row"><b>主角名</b><input type="text" id="fHero1" maxlength="5" style="width:120px" placeholder="主角名1（≤5字）"><input type="text" id="fHero2" maxlength="5" style="width:120px" placeholder="主角名2（可不填）"></div>
+          <div class="muted bad" id="mMsg"></div>
+        </div>
+        <div class="feature-help"><b>最终封面：</b>生成一张可直接下载的竖版封面，书名和笔名由工坊压字，避免图片文字写错。<span>你可以反复换图，正文不会受影响。</span></div>
+         <h3>封面</h3>
+        <div class="row"><label class="muted" for="fPen">笔名</label><input type="text" id="fPen" maxlength="20" placeholder="填你自己的笔名（不填则封面不压笔名）">
+          <label class="muted" for="fCw">尺寸</label><input type="number" id="fCw" style="width:80px" min="200" max="2000"> × <input type="number" id="fCh" style="width:80px" min="200" max="2600"><span class="muted">（番茄 600×800）</span>
+          <button class="ghost" id="btnSaveCoverSet">保存笔名和尺寸</button></div>
+        <div class="row" style="margin-top:8px;align-items:flex-start"><a id="coverBig" target="_blank" title="点击看原尺寸大图" style="display:contents"><img id="coverImg" alt="当前封面预览" style="width:240px;border:1px solid #ddd;border-radius:4px;display:none;cursor:zoom-in"></a>
+          <div style="flex:1"><p class="muted" id="coverInfo">还没有封面。先保存下面的封面提示词，再点「生成封面」。生图模型只画图，书名和笔名由工坊压上去，保证不写错字。</p>
+          <label class="muted" for="coverExtra">这次出图的额外要求（可以不填）</label><input type="text" id="coverExtra" style="width:100%" placeholder="例如：人物更大、夜景霓虹、冷色调">
+          <div class="row" style="margin-top:6px"><button id="btnCover" data-job>生成封面（通常 1–4 分钟）</button><button class="ghost" id="btnRecompose">只重新压书名/笔名（不花钱）</button><a id="coverDl" class="ghost" style="display:none">⬇ 下载封面</a></div></div></div>
+        <div>
+        <p class="muted">封面进度看页面顶栏：请求出图 → 裁图/压字 → 保存完成；供应商未返回内部排队百分比时，不显示估算进度。超时或失败不代表供应商未扣费，请到「模型与 Agent → 调用记录」核对本地记录，并以供应商账单确认扣费后再重试。封面文字记录是生成要求，请放大原图核对实际字形。</p><h3>封面 AI 生图提示词（可直接修改）</h3><p class="muted">修改中文后会以中文作为本次画面要求；点保存再生成。英文和负面要求也可以编辑。</p>
+        <label class="muted" for="fCoverZh">中文</label><textarea id="fCoverZh" rows="3"></textarea>
+        <label class="muted" for="fCoverEn">英文</label><textarea id="fCoverEn" rows="3"></textarea>
+        <label class="muted" for="fCoverNeg">负面提示词</label><textarea id="fCoverNeg" rows="2"></textarea>
+        </div>
+        <div class="row" style="margin-top:10px"><button id="btnSavePack">保存</button><span class="muted" id="packMsg" role="status"></span></div>
+      </div>
+    </div>
+
+    <div id="pExport" class="panel card hide">
+      <h2>导出上传番茄</h2><div class="feature-help"><b>导出交付：</b>拿到全书正文 TXT、作品信息和最终封面。<span>下载后由你检查并上传，系统不会替你发布或替你填写 AI 申报。</span></div>
+      <ol>
+        <li>下载全书正文 TXT（段间已空一行，章与章之间空两行）。</li>
+        <li>下载作品信息（书名、简介、标签、封面提示词、章节清单），在番茄作家后台创建作品时照着填。</li>
+        <li>封面：在「书名·简介·封面」里一键生成（默认番茄 600×800，书名和笔名已压好），这里也能下载。</li>
+        <li>AI 申报：按实际情况由你自己填写。</li>
+      </ol>
+      <div class="row"><button id="btnExport">⬇ 下载全书 TXT</button><button class="ghost" id="btnExportInfo">⬇ 下载作品信息</button><a id="exportCover" class="ghost" style="display:none">⬇ 下载封面</a></div>
+      <h3>预览</h3>
+      <pre class="box" id="exportPreview"></pre>
+    </div>
+
+    <!-- 创意工具箱（书页版：自动带入本书风格/设定集/前情；工具清单来自 GET /api/tools） -->
+    <div id="pTools" class="panel card hide">
+      <h2>🧰 创意工具箱</h2>
+      <div class="feature-help"><b>创意工具箱：</b>书名、简介、大纲、细纲、黄金开篇、金手指、人设、世界观、取名、脑洞。<span>点一个工具，填一两句话，点「生成」；结果可以一键复制，书名和简介还能一键用到本书包装。</span></div>
+      <div id="tbRoot"><p class="muted">工具加载中…</p></div>
+    </div>
+  </section>
+
+  <!-- 章节页 -->
+  <section id="chPage" class="hide">
+    <div class="row" style="margin-bottom:12px"><button class="ghost small" id="btnBack2">← 返回书页</button><h2 id="chTitle" style="margin:0"></h2></div>
+    <div class="card hide" id="revCard" aria-live="polite"></div>
+    <div class="card" id="reportCard"></div>
+    <div class="card">
+      <div class="row tabs" id="chTabs"></div>
+      <!-- 划选 AI 工具栏：选中正文里的一段，再点按钮；结果先放在下面的对比框，确认后才改正文 -->
+      <div class="row" id="selBar" role="toolbar" aria-label="划选 AI 工具栏" style="margin-top:10px;gap:8px">
+        <span id="selHint" class="muted" role="status">先用鼠标选中一段正文，再点右边的按钮</span>
+        <button type="button" class="small ghost selBtn" data-sel="expand" title="选中一段，补充细节让它更丰满">扩写</button>
+        <button type="button" class="small ghost selBtn" data-sel="shrink" title="选中一段，压缩成一半左右">缩写</button>
+        <button type="button" class="small ghost selBtn" data-sel="rewrite" title="意思不变，换一种写法">改写</button>
+        <button type="button" class="small ghost selBtn" data-sel="polish" title="只调整表达，更口语更有画面">润色</button>
+        <button type="button" class="small ghost selBtn" data-sel="fix" title="只改错别字和病句">纠错</button>
+        <button type="button" class="small ghost selBtn" data-sel="continue" title="接在选中的这一段后面往下写">续写一段</button>
+      </div>
+      <input type="text" id="selAsk" maxlength="200" aria-label="划选动作的额外要求" placeholder="额外要求（可不填），例如：多写一点心理活动" style="width:100%;box-sizing:border-box;margin-top:8px">
+      <div id="selBox" class="hide" aria-live="polite" style="margin-top:10px;border:2px solid var(--pri);border-radius:10px;padding:12px;background:#fffaf6"></div>
+      <p id="chWhich" class="muted" role="status" style="margin:10px 0 0;font-weight:bold"></p><div class="reader" id="chText" style="margin-top:12px" contenteditable="false"></div>
+      <div class="row" style="margin-top:12px">
+        <div class="feature-help"><b>改写情节：</b>根据评审意见重写这一章的内容、冲突或节奏。<span>适合觉得故事本身不够好；先生成候选稿，比较后再采用，不满意可以放弃。</span></div>
+         <button id="btnRevise" data-job>按我的想法改这一章</button>
+        <button class="ghost" id="btnWriteNext" data-job>写下一章</button>
+        <button class="ghost" id="btnEdit">我自己改</button>
+        <button class="ghost hide" id="btnSaveEdit">保存我的修改</button>
+        <button class="ghost hide" id="btnPick">改用这个版本</button>
+        <span class="feature-help"><b>人工润色：</b>不改故事，只调整表达；规则版免费，LLM 版更细腻并尽量保留原意。先检测原稿，再检测润色稿，满意后才采用。</span><button class="ghost" id="btnPolish" data-job>人工润色</button>
+        <button class="ghost hide" id="btnAdoptPolish">采用润色稿</button>
+      </div>
+      <p class="muted" id="polishNote" style="margin:6px 0 0"></p>
+      <label for="ins" class="muted" style="display:block;margin-top:10px">改写意见（可以不填，不填就按评审建议改；最多 2000 字）</label>
+      <textarea id="ins" rows="2" maxlength="2000" placeholder="例如：删掉章末「绿萝」这句。要用「」『』“”或英文引号标出原句，软件才能逐条核对改没改掉。"></textarea>
+      <p class="muted pro-only" id="insHint" style="margin:4px 0 0">0 / 2000 字。换章会清空；切到初稿候选再切回来不会清空。标原句认「」『』“”和英文引号。</p>
+      <div id="hist" class="muted" style="margin-top:10px"></div>
+    </div>
+  </section>
+</main>
+<script>
+  const guide = document.getElementById('newbieGuide');
+  if (localStorage.getItem('qingping-guide-hidden') === '1') guide?.classList.add('hide');
+  document.getElementById('hideGuide')?.addEventListener('click', () => { localStorage.setItem('qingping-guide-hidden', '1'); guide?.classList.add('hide'); });
+const $ = (s) => document.querySelector(s)
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+async function api(p, body) {
+  const r = await fetch(p, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {})
+  const j = await r.json(); if (!r.ok) throw new Error(j.error || '出错了'); return j
+}
+const UI_API_VERSION = 19 // 与 server.mjs 的 API_VERSION 一致
+// 点完按钮立刻刷新顶部状态条（原来最多要等 2 秒轮询，作者以为没点上，可能重复点击花两次钱）
+const tryApi = async (p, body) => { try { const r = await api(p, body); if (body) setTimeout(refreshStatus, 50); return r } catch (e) { alert(e.message) } }
+const cls = (s) => s == null ? '' : s >= 70 ? 'g' : s >= 55 ? 'y' : 'r'
+let cur = { book: null, n: null, tab: 'final', data: null, panel: 'pWrite', bookData: null }, lastJob = '', polishModes = {}, settings = {}, jobSeenPage = ''
+let CUST = false // 2026-10-02 内测用户模式：隐藏模型入口、错误文案去模型名
+
+async function poll() { await refreshStatus(); setTimeout(poll, 2000) }
+async function refreshStatus() {
+  try {
+    const s = await api('/api/status')
+    CUST = !!s.customer
+    if (CUST) {
+      // 内测用户：顶栏只有档位与额度，没有模型入口
+      $('#btnAgents').classList.add('hide')
+      const b = s.budget || {}
+      // 用积分代替钱（1 元 = 100 积分）：用户不用心算「¥0.27 算多算少」，也不暴露成本价
+      const pts = (y) => Math.round((Number(y) || 0) * 100)
+      const tiers = (s.agents?.tiers || []).filter((t) => t.enabled)
+      const curT = tiers.find((t) => t.id === s.agents.tier)
+      const left = pts(b.left ?? Math.max(0, (b.budget ?? 3) - (b.spent ?? 0)))
+      const canWrite = curT?.perChapter ? Math.floor(left / curT.perChapter) : null
+      $('#spent').textContent = `剩 ${left} 积分${canWrite != null ? `（当前档约够写 ${canWrite} 章）` : ''} · 剩 ${b.daysLeft ?? 0} 天`
+      $('#spent').title = `共 ${pts(b.budget ?? 3)} 积分，已用 ${pts(b.spent)}。积分用完后稿件仍可查看和导出`
+      const tb = $('#tierBox'); tb.classList.remove('hide')
+      tb.innerHTML = tiers.map((t) => `<button class="small ${t.id === s.agents.tier ? '' : 'ghost'}" data-tier="${t.id}" title="${esc(t.desc || '切换写作档位')}">${esc(t.label)}${t.perChapter ? `<span style="opacity:.75;font-size:12px"> · 约${t.perChapter}积分/章</span>` : ''}</button>`).join(' ')
+      tb.querySelectorAll('button').forEach((btn) => { btn.onclick = async () => { await api('/api/tier', { tier: btn.dataset.tier }); refreshStatus() } })
+      const ph = $('#packHint'); if (ph) ph.textContent = '包装编辑会先拆当前同类在读最高的书名和简介的句式，再给出 5 个书名候选、简介、标签和封面生图提示词；另一个助手扮演番茄读者给书名打点击意愿。'
+    } else $('#spent').textContent = `今日花费 ¥${s.spentToday}`
+    settings = s.settings; polishModes = s.polishModes || {}
+    $('#candN').textContent = settings.candidates
+    if (document.activeElement !== $('#candSel')) $('#candSel').value = String(settings.candidates)
+    if (!$('#polishSel').options.length) $('#polishSel').innerHTML = Object.entries(polishModes).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')
+    if (document.activeElement !== $('#polishSel')) $('#polishSel').value = settings.polish || 'off'
+    $('#autoPolish').checked = !!settings.autoPolish; $('#autoPolish').disabled = (settings.polish || 'off') === 'off'
+    const pmNow = settings.polish || 'off'
+    const hint = $('#polishHint')
+    if (hint) hint.innerHTML = pmNow === 'off'
+      ? '出厂默认是 LLM 版并自动出候选；当前这本书被手动改成了：<b>关闭</b>。选了规则版或 LLM 版之后，润色稿只作为候选，不会自动替换定稿。'
+      : `出厂默认是 LLM 版并自动出候选。当前这本书：<b>${esc(polishModes[pmNow] || pmNow)}</b>${settings.autoPolish ? '，并且「写完每章自动润色」开着——每写一章会多花一次润色的钱' : '。「写完每章自动润色」关着，只有你在章节页点「人工润色」才花钱'}。润色稿不会自动替换定稿。`
+    const b = $('#busy'), j = s.job
+    document.querySelectorAll('button[data-job]').forEach((x) => x.disabled = j.running)
+    // 看板每 2 秒重绘：关掉 aria-live，免得读屏软件每 2 秒播报一遍（进度条本身带 aria-valuenow）
+    b.setAttribute('aria-live', j.running && j.live ? 'off' : 'polite')
+    if (j.running && j.live) { b.className = 'busy live'; b.innerHTML = liveHtml(j); setTabTitle(`⏳ ${j.live.pct || 0}% ${j.label}`) }
+    else if (j.running) { b.className = 'busy'; b.textContent = `⏳ ${j.label}：${j.step}（已用 ${Math.floor(j.elapsed / 60)} 分 ${j.elapsed % 60} 秒。没有百分比：字数和评分要等这一步结束才知道。${CUST ? '可以先去忙别的，这个页面开着就行，' : '请不要关闭黑色窗口，'}也不要重复点击）`; setTabTitle(`⏳ ${j.label}`) }
+    else if (j.error) {
+      if (CUST) {
+        // 内测用户：报错只讲人话和下一步，不提 agent / 模型 / Base URL
+        b.className = 'busy err'
+        b.textContent = `❌ ${j.label}失败：${j.error}\n（已完成的步骤不会重复花钱。稍后可以再试一次；如果一直失败，请把这条报错发给我们。）`
+      } else {
+      const who = (j.error.match(/「[^」]+」/) || [])[0] || ''
+      const pool = (s.agents?.agents && s.agents?.tasks) ? s.agents.tasks.filter((t) => /写|改写|评审|润色|包装/.test(t.label)).slice(0, 8).map((t) => {
+        const id = s.agents.assign[t.id]; const a = s.agents.agents[id]; return a ? `${t.label}=${a.name}` : ''
+      }).filter(Boolean).join('；') : ''
+      b.className = 'busy err'
+      b.textContent = `❌ ${j.label}失败：${j.error}\n（已完成的步骤不会重复花钱。这条报错属于刚才那个任务${who ? '，点名的是 ' + who : ''}，换了任务分配也不会改写这条旧报错。）\n当前分配：${pool || '打开「⚙ 模型与 Agent」查看'}。同一家 Base URL 的 agent 往往共用账号池，换一个同地址的 agent 可能还是失败。`
+      }
+    }
+    else if (j.done) {
+      // 完成结果是全局任务状态：任务常在章节页启动，却可能在旧章、首页或导出页结束。
+      // 跨页保留可避免作者把“看不到提示”误判成任务未完成而重复提交。
+      b.className = 'busy'; b.textContent = `✅ ${j.done}（后台任务已结束；可回书页核对章节和字数，不要重复点击）`
+    } else { b.className = 'busy hide'; jobSeenPage = '' }
+    if (j.running && /^(写 \d+ 章|改写第|智能代理)/.test(j.label)) { const stop = document.createElement('button'); stop.className = 'ghost small'; stop.textContent = '停止当前生成'; stop.onclick = async () => { stop.disabled = true; await tryApi('/api/job/stop', {}); stop.textContent = '正在停止，已完成章节保留'; }; b.append(stop) }
+    // 页面和后台不是同一版本（代码更新了但黑色窗口没重开）：功能会出各种怪错，先提示
+    // 托管模式（launcher.mjs）下后台会在任务空闲时自动换新版本；页面这边发现新版本就自动刷新，不需要用户关窗口
+    const vb = $('#verWarn'), stale = s.apiVersion !== UI_API_VERSION || s.codeStale
+    offline = 0
+    if (!bootStamp) { bootStamp = s.startedAt; pageStamp = s.uiStamp }
+    if (s.startedAt !== bootStamp || (s.uiStamp && s.uiStamp !== pageStamp)) {
+      // 后台已经换成新版本，或页面文件更新了：记住位置和没提交的输入，重新载入页面。正在打字时先不刷，打断输入很烦
+      if (!typingNow()) return reloadKeepPlace()
+      vb.classList.remove('hide'); vb.innerHTML = (packDirty || $('#chText')?.isContentEditable) ? '工坊已经换成新版本。你有手改还没保存，所以页面没有自动刷新：先点「保存」，再点<button class="small" id="btnReloadNow">刷新到新版本</button>' : '工坊已经换成新版本，你停下输入后页面会自动刷新（已输入的改写意见会保留）。<button class="small" id="btnReloadNow">现在刷新</button>'; $('#btnReloadNow').onclick = reloadKeepPlace; return
+    }
+    vb.classList.toggle('hide', !stale)
+    // 托管模式下任务进行中换版本是自动的，用户什么都不用做：不再叠一条横幅挤占进度区（2026-10-03 截图两条横幅叠在一起）
+    if (stale && s.supervised && j.running) vb.classList.add('hide')
+    else if (stale && s.supervised) vb.textContent = '🔄 工坊有新版本，正在自动切换（几秒钟），页面会自己刷新，不用关窗口。'
+    else if (stale) { vb.innerHTML = '⚠ 工坊程序已更新，但后台还是旧版本，部分功能（如旧版本恢复）可能出错。<button class="small" id="btnRestart">一键重启后台</button>'; $('#btnRestart').onclick = () => tryApi('/api/restart', {}) }
+    const sig = j.label + j.running + j.done + j.error + j.startedAt // 带上开始时间：同名任务连点两次（结果文案相同）也要各触发一次收尾
+    if (sig !== lastJob) { const first = !lastJob; lastJob = sig; if (!j.running && !first) await onJobDone(j) }
+  } catch {
+    // 后台切换版本的几秒内连不上：如实显示，而不是让页面静默卡住
+    if (++offline >= 2) { const vb = $('#verWarn'); vb.classList.remove('hide'); vb.textContent = offline < 15 ? '🔄 工坊后台正在切换版本或重启，几秒后自动恢复，请稍等…' : '⚠ 连不上工坊后台：黑色窗口可能被关掉了。重新双击「start.cmd」即可，书稿不会丢。' }
+  }
+}
+let bootStamp = '', pageStamp = 0, offline = 0
+// 刷新前记下位置，刷新后回到同一本书、同一章、同一个面板
+// 「正在打字」= 焦点在输入框里且最近 8 秒内有按键；只有这时才推迟刷新
+let lastKey = 0; document.addEventListener('input', () => { lastKey = Date.now() }, true)
+function typingNow() {
+  // 手改正文（还没点保存）或包装字段有改动：这些不在自动保留范围里，必须等用户自己保存
+  if ($('#chText')?.isContentEditable && !$('#chPage').classList.contains('hide')) return true
+  if (packDirty) return true
+  const a = document.activeElement; return !!a && /^(TEXTAREA|INPUT)$/.test(a.tagName) && Date.now() - lastKey < 8000
+}
+let packDirty = false
+document.addEventListener('input', (e) => { if (e.target.closest?.('#pPack') && !KEEP_INPUTS.includes(e.target.id)) packDirty = true }, true)
+// 刷新时随位置一起保存的输入框（没点「保存」的手改正文另由正文框自己的逻辑处理，这里只保留短输入）
+const KEEP_INPUTS = ['ins', 'coverExtra', 'packIns']
+function reloadKeepPlace() {
+  const page = ['chPage', 'bookPage', 'agentsPage'].find((id) => !$('#' + id).classList.contains('hide')) || 'home'
+  const inputs = Object.fromEntries(KEEP_INPUTS.map((id) => [id, $('#' + id)?.value || '']).filter(([, v]) => v))
+  sessionStorage.setItem('wsPlace', JSON.stringify({ page, book: cur.book, n: cur.n, tab: cur.tab, panel: cur.panel, y: window.scrollY, inputs }))
+  location.reload()
+}
+async function restorePlace() {
+  let p; try { p = JSON.parse(sessionStorage.getItem('wsPlace') || 'null') } catch { } sessionStorage.removeItem('wsPlace')
+  if (!p?.book) return
+  try {
+    if (p.page === 'chPage' && p.n) { cur.book = p.book; cur.n = p.n; await openChapter(p.n, p.tab) } else if (p.page === 'bookPage') await openBook(p.book, p.panel)
+    for (const [id, v] of Object.entries(p.inputs || {})) if ($('#' + id)) $('#' + id).value = v
+    window.scrollTo(0, p.y || 0)
+    const vb = $('#verWarn'); vb.classList.remove('hide'); vb.textContent = '✅ 已切换到工坊新版本，页面停在你刚才的位置，没提交的改写意见也保留了。'; setTimeout(() => vb.classList.add('hide'), 8000)
+  } catch { }
+}
+// ── 等待过程实时看板（2026-10-03）：数据全部来自后台 job.live（流式生成的真实进度），不是假动画 ──
+const BASE_TITLE = document.title
+const lvSeen = { job: 0, keys: new Set() }
+function setTabTitle(t) { if (document.title !== t) document.title = t }
+function liveHtml(j) {
+  const L = j.live, steps = L.steps || [], ids = ['read', 'bible', 'outline', 'done']
+  const at = Math.max(0, ids.indexOf(L.step))
+  const mm = `${Math.floor(j.elapsed / 60)} 分 ${String(j.elapsed % 60).padStart(2, '0')} 秒`
+  const c = L.card || {}
+  // 每 2 秒整块重绘：只给「第一次出现」的条目加淡入动画，否则每次轮询都会重播动画、卡片一闪一闪
+  if (j.startedAt !== lvSeen.job) { lvSeen.job = j.startedAt; lvSeen.keys.clear() }
+  const nw = (k) => (lvSeen.keys.has(k) ? '' : (lvSeen.keys.add(k), ' class="nw"'))
+  const cells = [['书名', c.title && '《' + c.title + '》'], ['风格', c.genre], ['金手指', c.cheat], ['规则', c.cheatRule], ['主角', c.heroLine || c.hero], ['配角', (c.cast || []).join('、')], ['反派', c.villain]]
+    .filter(([, v]) => v).map(([k, v]) => `<div${nw('c:' + k + v)}><b>${k}</b>${esc(v)}</div>`).join('')
+  const chs = (L.chapters || []).map((r) => `<li${nw('ch:' + r.n)}>✅ 第 ${r.n} 章 ${esc(r.title)}</li>`).join('')
+  const slow = j.elapsed > 240 && L.pct < 60
+  return `<div class="lv-head"><span>⏳ ${esc(j.label)}：${L.pct || 0}%</span><span class="muted">已用 ${mm} · 一般 2 分钟左右</span></div>`
+    + `<ol class="lv-steps" aria-label="进度">${steps.map((s, i) => `<li class="${i < at ? 'ok' : i === at ? 'on' : ''}"${i === at ? ' aria-current="step"' : ''}>${i < at ? '✓ ' : ''}${esc(s)}</li>`).join('')}</ol>`
+    + `<div class="lv-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${L.pct || 0}"><i style="width:${L.pct || 0}%"></i></div>`
+    + (L.think ? `<p class="lv-think">正在琢磨：${esc(L.think)}</p>` : '<p class="lv-think">正在动笔…</p>')
+    + (cells ? `<div class="lv-card">${cells}</div>` : '')
+    + (chs ? `<p class="lv-foot">章纲已排 ${(L.chapters || []).length}/${L.outlineTotal || 10} 章</p><ul class="lv-ch">${chs}</ul>` : '')
+    + (L.switched ? '<p class="lv-warn">线路有点堵，已自动切到备用线路，不用重新点。</p>' : slow ? '<p class="lv-warn">这次比平时慢，后台在继续，不用重新点。</p>' : '')
+    + `<p class="lv-foot">可以切去别的标签页，做完了这个标签的标题会变成「✅」${'Notification' in window && Notification.permission === 'default' ? '，<button class="small ghost" id="btnNotify">做完提醒我</button>' : ''}</p>`
+}
+document.addEventListener('click', (e) => { if (e.target?.id === 'btnNotify') Notification.requestPermission().then(() => e.target.remove()) })
+function notifyDone(j) {
+  const ok = j.outcome === 'ok'
+  setTabTitle(`${ok ? '✅' : '❌'} ${j.label}${ok ? '完成' : '失败'}`)
+  if (document.hidden && 'Notification' in window && Notification.permission === 'granted') { try { new Notification('清平文坊', { body: `${j.label}${ok ? '完成了，回来看看吧' : '没成功，回来看看原因'}` }) } catch { /* 部分浏览器不支持 */ } }
+  // 回到这个标签页后，标题恢复原样
+  const back = () => { if (!document.hidden) { setTimeout(() => setTabTitle(BASE_TITLE), 4000); document.removeEventListener('visibilitychange', back) } }
+  document.addEventListener('visibilitychange', back); back()
+}
+async function onJobDone(j) {
+  notifyDone(j)
+  if (!j.label) return // 即时操作清掉了上一个任务的提示，页面已由那个操作自己刷新（再刷新会冲掉「已采用」提示、让按钮编号失效）
+  // 创意工具箱 / 划选改写：结果只落在自己的结果区，不要重新打开章节或书页（会冲掉选区和对比框）
+  if (j.label.startsWith('创意工具箱：')) return handleToolJob(j)
+  if (j.label.startsWith('划选')) return handleSelJob(j)
+  if (j.label === '生成开书方案' && Array.isArray(j.result)) showConcepts(j.result)
+  if (j.label === '开书' && j.result?.id) return openBook(j.result.id)
+  if (cur.book && !$('#chPage').classList.contains('hide') && cur.n) { const instruction = $('#ins').value; await openChapter(cur.n, cur.tab); $('#ins').value = instruction; if (j.label.startsWith('改写第') && cur.data?.revision) $('#revCard').scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+  else if (cur.book && !$('#bookPage').classList.contains('hide')) openBook(cur.book, cur.panel)
+  if (!$('#shortPage').classList.contains('hide')) loadShorts()
+  loadBooks()
+}
+function show(id) { for (const s of ['home', 'bookPage', 'chPage', 'agentsPage', 'feedbackPage', 'shortPage']) $('#' + s).classList.toggle('hide', s !== id); window.scrollTo(0, 0) }
+
+// ── 客户反馈与自动客服 ──
+const visitorKey = 'qingping-feedback-visitor'
+const visitorId = () => { let v = localStorage.getItem(visitorKey); if (!v) { v = crypto.randomUUID ? crypto.randomUUID() : 'v-' + Math.random().toString(36).slice(2); localStorage.setItem(visitorKey, v) }; return v }
+let feedbackPrev = 'home'
+function feedbackContext() { return { page: feedbackPrev === 'chPage' ? '章节页' : feedbackPrev === 'bookPage' ? '书页' : '首页', bookId: cur.book || '', chapter: cur.n || '' } }
+function renderFeedback(rows) {
+  $('#feedbackList').innerHTML = rows.length ? rows.slice().reverse().map((f) => `<article class="tip" style="margin:8px 0"><b>${esc(f.id)} · ${esc(f.category)} · ${esc(f.status)}</b><div class="muted">${new Date(f.createdAt).toLocaleString('zh-CN')}</div>${(f.messages || []).map((m) => `<p style="margin:6px 0"><b>${m.role === 'customer' ? '我' : '清平助手'}：</b>${esc(m.text)}</p>`).join('')}<div class="row"><input type="text" data-freply="${esc(f.id)}" maxlength="2000" placeholder="继续补充情况"><button class="small ghost" data-freplybtn="${esc(f.id)}">补充</button></div></article>`).join('') : '<p class="muted">还没有反馈记录</p>'
+  document.querySelectorAll('[data-freplybtn]').forEach((b) => b.onclick = async () => { const i = document.querySelector(`[data-freply="${b.dataset.freply}"]`); if (!i.value.trim()) return; await api('/api/feedback/reply', { id: b.dataset.freply, text: i.value, visitor: visitorId() }); i.value = ''; loadFeedback() })
+}
+async function loadFeedback() { try { renderFeedback(await api('/api/feedback?visitor=' + encodeURIComponent(visitorId()))) } catch (e) { $('#feedbackMsg').textContent = e.message } }
+async function openFeedback() { feedbackPrev = ['bookPage', 'chPage'].find((s) => !$('#' + s).classList.contains('hide')) || 'home'; show('feedbackPage'); $('#feedbackPageContext').value = feedbackContext().page; await loadFeedback() }
+$('#btnFeedback').onclick = openFeedback
+$('#btnBackFeedback').onclick = () => { show(feedbackPrev); if (feedbackPrev === 'home') loadBooks() }
+$('#btnSubmitFeedback').onclick = async () => { const text = $('#feedbackText').value.trim(); if (!text) return $('#feedbackMsg').textContent = '请先写下遇到的情况'; const r = await api('/api/feedback', { text, visitor: visitorId(), ...feedbackContext() }); $('#feedbackText').value = ''; $('#feedbackMsg').textContent = `已收到 ${r.id}，自动答复已生成；如需补充可继续在下方回复`; await loadFeedback() }
+
+// ── 首页 ──
+// 风格选择：window._style = {id} 或 {id:'custom', custom:'…'}；默认都市脑洞
+window._style = { id: 'urban-naodong' }
+window._styleTouched = false
+let allStyles = []
+function currentStyleSel() {
+  if (window._style.id === 'custom') return { id: 'custom', custom: ($('#styleCustom')?.value || '').trim().slice(0, 200) }
+  return { id: window._style.id }
+}
+function paintStyleButtons() {
+  const cur = window._style.id
+  document.querySelectorAll('#styleFeat button.styleBtn, #styleMore button.styleBtn').forEach((b) => b.classList.toggle('on', b.dataset.sid === cur))
+  $('#btnCustomStyle').classList.toggle('on', cur === 'custom')
+  $('#styleCustom').classList.toggle('on', cur === 'custom')
+  const s = allStyles.find((x) => x.id === cur)
+  $('#styleMsg').textContent = cur === 'custom' ? '按你写的风格开书' : (s ? `已选：${s.label}` : '')
+}
+function pickStyle(id) {
+  window._style = { id }; window._styleTouched = true; paintStyleButtons()
+}
+function styleBtnHtml(s) {
+  return `<button type="button" class="styleBtn" data-sid="${esc(s.id)}"><span class="tl">${esc(s.label)}</span>${s.tagline ? `<span class="tg">${esc(s.tagline)}</span>` : ''}</button>`
+}
+function renderStyles(list) {
+  allStyles = list || []
+  $('#styleFeat').innerHTML = allStyles.filter((s) => s.featured).map(styleBtnHtml).join('')
+  $('#styleMore').innerHTML = allStyles.filter((s) => !s.featured).map(styleBtnHtml).join('')
+  document.querySelectorAll('#styleFeat button.styleBtn, #styleMore button.styleBtn').forEach((b) => b.onclick = () => pickStyle(b.dataset.sid))
+  paintStyleButtons()
+}
+async function loadStyles() { try { const r = await api('/api/styles'); renderStyles(r.styles || []) } catch (e) { $('#styleMsg').textContent = '风格列表加载失败，将按都市脑洞开书' } loadVoices() }
+// 文风（笔调）与玩梗模式：和题材独立，开书时带上；书页还能随时改
+window._voice = 'auto'; window._memeMode = 'light'
+let allVoices = [], memeModes = {}
+function paintVoice() {
+  document.querySelectorAll('#voiceRow button').forEach((b) => { const on = b.dataset.v === window._voice; b.classList.toggle('ghost', !on); b.setAttribute('aria-pressed', on ? 'true' : 'false') })
+  document.querySelectorAll('#memeRow button').forEach((b) => { const on = b.dataset.m === window._memeMode; b.classList.toggle('ghost', !on); b.setAttribute('aria-pressed', on ? 'true' : 'false') })
+  const v = allVoices.find((x) => x.id === window._voice)
+  $('#voiceMsg').textContent = `${v && v.id !== 'auto' ? `文风：${v.label}（${v.tagline}）` : ''}${window._memeMode === 'heavy' ? '　玩梗模式：对白会大量玩梗' : ''}`
+}
+async function loadVoices() {
+  try {
+    const r = await api('/api/voices'); allVoices = r.voices || []; memeModes = r.memeModes || {}
+    $('#voiceRow').innerHTML = allVoices.map((v) => `<button type="button" class="small ghost" data-v="${esc(v.id)}" title="${esc(v.tagline)}">${esc(v.label)}</button>`).join('')
+    $('#memeRow').innerHTML = Object.entries(memeModes).map(([k, m]) => `<button type="button" class="small ghost" data-m="${esc(k)}" title="${esc(m.desc)}">${esc(m.label)}</button>`).join('')
+    document.querySelectorAll('#voiceRow button').forEach((b) => b.onclick = () => { window._voice = b.dataset.v; paintVoice() })
+    document.querySelectorAll('#memeRow button').forEach((b) => b.onclick = () => { window._memeMode = b.dataset.m; paintVoice() })
+    $('#bookVoice').innerHTML = allVoices.map((v) => `<option value="${esc(v.id)}">${esc(v.label)}　${esc(v.tagline)}</option>`).join('')
+    $('#bookMeme').innerHTML = Object.entries(memeModes).map(([k, m]) => `<option value="${esc(k)}">${esc(m.label)}</option>`).join('')
+    if (cur.bookData) renderBookVoice(cur.bookData)
+    paintVoice()
+  } catch { $('#voiceBlock').classList.add('hide'); $('#bookVoiceRow').classList.add('hide') }
+}
+function renderBookVoice(b) { $('#bookVoice').value = b.voice || 'auto'; $('#bookMeme').value = b.memeMode || 'light' }
+async function saveBookVoice(field) {
+  const r = await tryApi('/api/book/voice', { id: cur.book, [field]: $(field === 'voice' ? '#bookVoice' : '#bookMeme').value })
+  if (r) { if (cur.bookData) Object.assign(cur.bookData, { voice: r.voice, memeMode: r.memeMode }); renderBookVoice(r); $('#bookVoiceNote').textContent = '已保存，下一章（含改写）按这个写' }
+}
+$('#bookVoice').onchange = () => saveBookVoice('voice')
+$('#bookMeme').onchange = () => saveBookVoice('memeMode')
+$('#btnMoreStyles').onclick = () => { const more = $('#styleMore'); const open = !more.classList.contains('hide'); more.classList.toggle('hide', open); $('#btnMoreStyles').textContent = open ? '更多风格 ▾' : '收起更多风格 ▴' }
+$('#btnCustomStyle').onclick = () => { window._style = { id: 'custom' }; window._styleTouched = true; $('#customBox').classList.remove('hide'); $('#styleCustom').focus(); paintStyleButtons() }
+$('#styleCustom').addEventListener('input', () => { window._style = { id: 'custom' }; window._styleTouched = true; paintStyleButtons() })
+function showConcepts(list) {
+  $('#concepts').innerHTML = list.map((c, i) => {
+    const title = (c.match(/书名[:：]\s*(.*)/) || [])[1] || `方案${i + 1}`
+    const one = (c.match(/一句话(?:脑洞|卖点)[:：]\s*(.*)/) || [])[1] || ''
+    return `<div class="concept"><h3>方案 ${i + 1}：${esc(title)}</h3><b>${esc(one)}</b>
+<details><summary>展开看完整方案</summary>${esc(c)}</details>
+<div class="row" style="margin-top:8px"><button data-job data-i="${i}" class="pickConcept">就写这本</button></div></div>`
+  }).join('') + '<p class="muted">都不满意？改一下上面的想法，再点一次「出方案」。书名以后也可以在书页「书名·简介·封面」里改。</p>'
+  window._concepts = list
+  document.querySelectorAll('.pickConcept').forEach((b) => b.onclick = () => tryApi('/api/start', { concept: window._concepts[b.dataset.i], idea: $('#idea').value, style: currentStyleSel(), voice: window._voice, memeMode: window._memeMode }))
+}
+async function loadBooks() {
+  const list = await api('/api/books')
+  $('#books').innerHTML = list.length ? list.map((b) => `<div class="bk"><div style="flex:1"><b>${esc(b.title)}</b><div class="muted">${b.chapters.length} 章 · ${b.chapters.reduce((a, c) => a + (c.chars || 0), 0)} 字 · 已花 ¥${(+b.cost || 0).toFixed(2)}</div></div><button class="small" data-id="${esc(b.id)}">打开</button></div>`).join('') : '<p class="muted">还没有书</p>'
+  document.querySelectorAll('#books button').forEach((x) => x.onclick = () => openBook(x.dataset.id))
+}
+
+// ── 书页 ──
+function characterFields(x = {}) {
+  const fields = [['name','姓名'],['role','身份/关系'],['goal','核心目标'],['traits','性格关键词'],['behavior','行为模式'],['bottomLine','底线'],['weakness','弱点/恐惧'],['relation','与主角关系'],['decisionPriority','做决定时优先保什么']]
+  return fields.map(([k, label]) => `<label class="muted">${label}<input data-char="${k}" value="${esc(x[k] || '')}" placeholder="${label}"></label>`).join('')
+}
+function renderCharacters(card) {
+  const rows = card?.characters?.length ? card.characters : [{}]
+  $('#characterCards').innerHTML = rows.map((x, i) => `<div class="character-row" data-index="${i}" style="margin:8px 0"><div class="row"><b>人物 ${i + 1}</b><button class="ghost small removeCharacter" type="button">删除</button></div><div class="grid" style="margin-top:8px">${characterFields(x)}</div></div>`).join('')
+  document.querySelectorAll('.removeCharacter').forEach((b) => b.onclick = () => { b.closest('.character-row').remove() })
+}
+function collectCharacters() {
+  return [...document.querySelectorAll('.character-row')].map((row) => { const x = {}; row.querySelectorAll('[data-char]').forEach((el) => { x[el.dataset.char] = el.value }) ; return x }).filter((x) => x.name.trim())
+}
+function loadCharacters(card) { renderCharacters(card || { characters: [] }); $('#characterMsg').textContent = card?.updatedAt ? '已保存；继续写章会自动带入' : '尚未填写人物卡' }
+function setPanel(p) {
+  cur.panel = p
+  document.querySelectorAll('.panel').forEach((x) => x.classList.toggle('hide', x.id !== p))
+  document.querySelectorAll('#steps button').forEach((x) => { x.classList.toggle('cur', x.dataset.p === p); x.setAttribute('aria-current', x.dataset.p === p ? 'page' : 'false') })
+  if (p === 'pExport') renderExport()
+  if (p === 'pTools') tbShow('book')
+}
+document.querySelectorAll('#steps button').forEach((x) => x.onclick = () => setPanel(x.dataset.p))
+
+function renderHeat(h) {
+  document.querySelectorAll('.heatBtn').forEach((x) => { const on = x.dataset.h === h; x.classList.toggle('ghost', !on); x.setAttribute('aria-pressed', on ? 'true' : 'false') })
+}
+document.querySelectorAll('.heatBtn').forEach((x) => x.onclick = async () => {
+  if (!cur.book) return
+  const r = await tryApi('/api/book/heat', { id: cur.book, heat: x.dataset.h })
+  if (r) { renderHeat(r.heat); if (cur.bookData) cur.bookData.heat = r.heat; $('#heatNote').textContent = `已选「${x.textContent.replace(/[^稳燃炸]/g, '')}」，下一章（含改写）按这个写` }
+})
+async function openBook(id, panel) {
+  cur.book = id; const b = await api('/api/book?id=' + encodeURIComponent(id)); cur.bookData = b
+  show('bookPage'); $('#bookTitle').textContent = '《' + b.title + '》'
+  const bs = (b.genre === 'urban-naodong' || !b.genre) ? '都市脑洞' : (b.genre === 'custom' ? `自定义风格：${b.styleCustom || ''}` : b.genre)
+  $('#bookStyle').textContent = `风格：${bs}`
+  renderHeat(b.heat || 'calm')
+  renderBookVoice(b)
+  const words = b.chapters.reduce((a, c) => a + (c.chars || 0), 0)
+  $('#bookStat').textContent = `已写 ${b.chapters.length} 章 · ${words} 字 · 已花 ¥${(+b.cost || 0).toFixed(2)}`
+  // 全书计划：章纲共几章、下一章写什么（模拟作者实测：写正文页看不到还剩几章，去设定集也没找到章纲）
+  const nextRow = b.outline[b.chapters.length]
+  $('#planStat').innerHTML = b.outline.length ? `章纲共 ${b.outline.length} 章，已写 ${b.chapters.length} 章${nextRow ? `；下一章：${esc(String(nextRow).slice(0, 60))}` : '；章纲已写完'}　<button class="small ghost" id="goOutline">看完整章纲</button>` : '还没有章纲'
+  if ($('#goOutline')) $('#goOutline').onclick = () => { setPanel('pBible'); $('#outline').scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+  const done = { pConcept: !!b.concept, pBible: !!b.bible, pWrite: b.chapters.length > 0, pPack: !!(b.package?.updatedAt), pExport: false }
+  document.querySelectorAll('#steps button').forEach((x) => x.classList.toggle('done', !!done[x.dataset.p]))
+  $('#noCh').classList.toggle('hide', b.chapters.length > 0)
+  $('#chapters').innerHTML = b.chapters.map((c) => `<tr><td>${c.n}</td><td>${esc(c.title)}${c.pendingRevision ? ' <span class="muted" title="这一章有改写稿还没点采用或放弃">待采用改写</span>' : ''}</td><td>${c.chars} 字</td><td><span class="score ${cls(c.score)}" title="${c.scoreStale ? '正文改过，分数是旧的，进章节页点「重做评审报告」' : '评审总分（0–100）。和右边的追读意愿不是同一个数'}">${c.score ?? '—'}${c.scoreStale ? '*' : ''}</span> <span class="muted" style="font-size:13px">${c.score == null ? '' : c.score >= 70 ? '可直接用' : c.score >= 55 ? '建议改写' : '建议重写'}</span></td><td title="预计会点下一章的读者比例，不是评分">${c.readNext != null ? c.readNext + '%' : '—'}</td><td>${esc(c.hookType || '未生成')}</td><td><button class="small ghost" data-n="${c.n}">打开第${c.n}章（阅读/修改）</button></td></tr>`).join('')
+  document.querySelectorAll('#chapters button').forEach((x) => x.onclick = () => openChapter(Number(x.dataset.n)))
+  $('#conceptText').textContent = b.concept || '（没有记录）'
+  $('#bible').textContent = b.bible || '（还没有设定集）'; $('#outline').textContent = b.outline.join('\n') || '（还没有章纲）'; $('#log').textContent = b.log
+  loadCharacters(b.characterCard)
+   fillPack(b)
+  setPanel(panel || cur.panel || 'pWrite')
+}
+
+// ── 番茄作品信息：目标读者 / 签约模式 / 阅读标签 / 内容标签 / 主角名（词表来自 /api/fanqie-spec，与番茄「创建作品」页一致）──
+let FQ = null, meta = null
+const MG = [
+  { sec: 'read', key: 'main', name: '阅读标签 · 主分类（必选 1 个）', single: true },
+  { sec: 'read', key: 'theme', name: '阅读标签 · 主题', max: 2 },
+  { sec: 'read', key: 'role', name: '阅读标签 · 角色', max: 2 },
+  { sec: 'read', key: 'plot', name: '阅读标签 · 情节', max: 2 },
+  { sec: 'content', key: 'plot', name: '内容标签 · 情节（与人设合计最多 4 个）', shared: true },
+  { sec: 'content', key: 'persona', name: '内容标签 · 人设（与情节合计最多 4 个）', shared: true },
+  { sec: 'content', key: 'emotion', name: '内容标签 · 情感', max: 2 },
+  { sec: 'content', key: 'world', name: '内容标签 · 世界观', max: 1 },
+]
+const mgWords = (g) => g.sec === 'read' ? FQ.read[meta.audience][g.key] : FQ.content[g.key]
+const mgSel = (g) => g.single ? (meta.read.main ? [meta.read.main] : []) : meta[g.sec][g.key]
+const emptyMetaUi = (aud) => ({ audience: aud || 'male', signMode: 'serial', read: { main: '', theme: [], role: [], plot: [] }, content: { plot: [], emotion: [], persona: [], world: [] }, heroes: [] })
+function metaFrom(p) {
+  const m = emptyMetaUi(p.defaultAudience)
+  const s = p.meta; if (!s) return m
+  m.audience = s.audience === 'female' ? 'female' : 'male'; m.signMode = s.signMode === 'complete' ? 'complete' : 'serial'
+  m.read = { main: s.read?.main || '', theme: [...(s.read?.theme || [])], role: [...(s.read?.role || [])], plot: [...(s.read?.plot || [])] }
+  m.content = { plot: [...(s.content?.plot || [])], emotion: [...(s.content?.emotion || [])], persona: [...(s.content?.persona || [])], world: [...(s.content?.world || [])] }
+  m.heroes = [...(s.heroes || [])]; return m
+}
+function metaSummary(m) {
+  if (!m) return ''
+  const j = (a) => (a && a.length ? a.join('、') : '无')
+  return `${m.audience === 'female' ? '女频' : '男频'} · ${m.signMode === 'complete' ? '完本模式' : '连载模式'}\n阅读标签：主分类 ${m.read?.main || '（未选）'}｜主题 ${j(m.read?.theme)}｜角色 ${j(m.read?.role)}｜情节 ${j(m.read?.plot)}\n内容标签：情节 ${j(m.content?.plot)}｜人设 ${j(m.content?.persona)}｜情感 ${j(m.content?.emotion)}｜世界观 ${j(m.content?.world)}\n主角名：${j(m.heroes)}`
+}
+function renderMeta() {
+  if (!FQ || !meta) return
+  document.querySelectorAll('input[name=mAud]').forEach((r) => { r.checked = r.value === meta.audience })
+  document.querySelectorAll('input[name=mSign]').forEach((r) => { r.checked = r.value === meta.signMode })
+  $('#mSignNote').textContent = FQ.signModes.find((x) => x.id === meta.signMode)?.note || ''
+  $('#fHero1').value = meta.heroes[0] || ''; $('#fHero2').value = meta.heroes[1] || ''
+  $('#mGroups').innerHTML = MG.map((g, i) => `<div class="mgrp"><b>${esc(g.name)}</b> <span class="muted" id="mc${i}"></span><input class="mfilter" data-g="${i}" placeholder="搜一搜"><div class="chips">${mgWords(g).map((w) => `<button type="button" class="chip" data-g="${i}" data-w="${esc(w)}">${esc(w)}</button>`).join('')}</div></div>`).join('')
+  refreshMeta()
+}
+function refreshMeta() {
+  { const cm = { ...meta, heroes: [$('#fHero1').value, $('#fHero2').value].map((x) => x.trim()).filter(Boolean) }; const ms = $('#mSummary'); if (ms) ms.textContent = '当前采用的标签（点下面的词会同步变化，保存后生效）：\n' + metaSummary(cm) }
+  document.querySelectorAll('#mGroups .chip').forEach((c) => { c.classList.toggle('on', mgSel(MG[c.dataset.g]).includes(c.dataset.w)) })
+  MG.forEach((g, i) => {
+    const sel = mgSel(g), el = $('#mc' + i); if (!el) return
+    const cap = g.single ? 1 : g.shared ? FQ.content.limits.plotPersona : g.max
+    const n = g.shared ? meta.content.plot.length + meta.content.persona.length : sel.length
+    el.textContent = `已选 ${n}/${cap}${sel.length ? '：' + sel.join('、') : ''}`
+  })
+  updateCurMeta()
+}
+// 包装方案区的「当前采用的作品信息」：读的是下方选择器里的实时状态（含未保存的修改）
+function updateCurMeta() {
+  const el = $('#curMetaBox'); if (!el || !meta) return
+  const heroes = [$('#fHero1').value, $('#fHero2').value].map((x) => x.trim()).filter(Boolean)
+  el.textContent = metaSummary({ ...meta, heroes }) + (packDirty ? '\n（有未保存的修改，点「保存」生效）' : '')
+}
+$('#fHero1').oninput = $('#fHero2').oninput = () => { packDirty = true; updateCurMeta() }
+$('#mGroups').onclick = (e) => {
+  const c = e.target.closest('.chip'); if (!c || !FQ) return
+  const g = MG[c.dataset.g], w = c.dataset.w; $('#mMsg').textContent = ''; packDirty = true
+  if (g.single) meta.read.main = meta.read.main === w ? '' : w
+  else {
+    const arr = meta[g.sec][g.key], at = arr.indexOf(w)
+    if (at >= 0) arr.splice(at, 1)
+    else {
+      const used = g.shared ? meta.content.plot.length + meta.content.persona.length : arr.length, cap = g.shared ? FQ.content.limits.plotPersona : g.max
+      if (used >= cap) { $('#mMsg').textContent = `「${g.name}」最多选 ${cap} 个，先点掉一个已选的再选`; return }
+      arr.push(w)
+    }
+  }
+  refreshMeta()
+}
+$('#mGroups').oninput = (e) => {
+  const f = e.target.closest('.mfilter'); if (!f) return
+  const q = f.value.trim(); f.parentElement.querySelectorAll('.chip').forEach((c) => { c.style.display = !q || c.dataset.w.includes(q) ? '' : 'none' })
+}
+document.querySelectorAll('input[name=mAud]').forEach((r) => r.onchange = () => {
+  if (!meta || meta.audience === r.value) return
+  meta.audience = r.value
+  const L = FQ.read[meta.audience]; if (!L.main.includes(meta.read.main)) meta.read.main = ''
+  for (const k of ['theme', 'role', 'plot']) meta.read[k] = meta.read[k].filter((w) => L[k].includes(w))
+  renderMeta()
+})
+document.querySelectorAll('input[name=mSign]').forEach((r) => r.onchange = () => { if (meta) { meta.signMode = r.value; $('#mSignNote').textContent = FQ.signModes.find((x) => x.id === r.value)?.note || ''; refreshMeta() } })
+;['#fHero1', '#fHero2'].forEach((s) => { $(s).addEventListener('input', () => { if (meta && FQ) refreshMeta() }) })
+function collectMeta() { if (!meta) return undefined; meta.heroes = [$('#fHero1').value, $('#fHero2').value].map((x) => x.trim()).filter(Boolean); return meta }
+async function loadMeta(p, draft) {
+  try {
+    if (!FQ) FQ = (await api('/api/fanqie-spec')).spec; meta = metaFrom(p)
+    // 还没保存过作品信息、但 AI 已给过方案：把 AI 的标签预填到下面的选择器（点「保存」才生效），不再是一片空白
+    if (!p.meta && draft?.meta) { meta = metaFrom({ meta: draft.meta, defaultAudience: meta.audience }); packDirty = true; $('#mMsg').textContent = '已按 AI 最新方案预填标签，可直接点选修改，确认后点「保存」'; $('#mMsg').classList.remove('bad') }
+    renderMeta()
+  } catch (e) { $('#mMsg').textContent = '番茄选项词表加载失败：' + e.message }
+}
+
+// ── 包装 ──
+function fillPack(b) {
+  const p = b.package || {}, cp = p.coverPrompt || {}
+  $('#btnRecompose').dataset.ai = String(p.cover?.textMode === 'ai')
+  $('#btnRecompose').textContent = p.cover?.textMode === 'ai' ? '更新封面书名/笔名（付费 AI 编辑）' : '只重新压书名/笔名（本机免费）'
+  packDirty = false
+  $('#fTitle').value = b.title; titleCount(); $('#fIntro').value = p.intro || ''; loadMeta(p, b.packageDraft)
+  $('#fCoverZh').value = cp.zh || ''; $('#fCoverEn').value = cp.en || ''; $('#fCoverNeg').value = cp.negative || ''
+  $('#introLen').textContent = `（${(p.intro || '').length} 字）`; $('#packMsg').textContent = ''
+  $('#packMsg').textContent = `当前已保存书名：${b.title}；作品记录更新时间：${new Date(b.updatedAt).toLocaleString('zh-CN')}。设定集标题可能保留创作时的旧名，不是当前包装。`
+  $('#fPen').value = settings.penName || ''; $('#fCw').value = settings.coverWidth || 600; $('#fCh').value = settings.coverHeight || 800
+  if (p.cover?.file && p.cover.noPen) $('#packMsg').textContent = '⚠ 这张封面生成时还没有笔名：填好你自己的笔名并保存后，点「只重新压书名/笔名」（不花钱）'
+  if (p.cover?.file) { $('#coverImg').src = '/cover?id=' + encodeURIComponent(b.id) + '&t=' + Date.now(); $('#coverBig').href = $('#coverImg').src; $('#coverImg').style.display = ''; $('#coverDl').href = '/cover?dl=1&id=' + encodeURIComponent(b.id); $('#coverDl').style.display = ''; $('#coverInfo').textContent = `当前封面：${p.cover.size}，${p.cover.model}，${new Date(p.cover.at).toLocaleString('zh-CN')}。封面记录书名：${p.cover.coverTitle || '未记录'}；笔名：${p.cover.coverPen || '未设'}。当前已保存书名：${b.title}。记录不是字形识别，请放大看图确认。` }
+  else { $('#coverImg').style.display = 'none'; $('#coverDl').style.display = 'none' }
+  const d = b.packageDraft
+  if (!d) { $('#packDraft').innerHTML = '<p class="muted">还没有生成过包装方案。</p>'; return }
+  const best = d.recommend
+  $('#packDraft').innerHTML = `<h3>最新方案（${new Date(d.at).toLocaleString('zh-CN')}${d.instruction ? '，意见：' + esc(d.instruction) : ''}）</h3>
+    <p><b>卖点：</b>${esc(d.sellingPoint)}</p>
+    <details><summary>对标爆款拆出来的句式</summary><ul>${(d.patterns || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul></details>
+    <h3>书名候选${d.voteError ? `<span class="muted bad">（读者试读失败：${esc(d.voteError.split('\n')[0])}）</span>` : '（分数 = 读者点击意愿）'}</h3>
+    ${d.titles.map((t, i) => `<div class="tcand ${i === best ? 'rec' : ''}"><span class="score ${t.score >= 70 ? 'g' : t.score >= 50 ? 'y' : t.score != null ? 'r' : ''}">${t.score ?? '—'}</span><div style="flex:1"><b>${esc(t.title)}</b>${i === best ? ' <span class="muted">← 推荐</span>' : ''}<div class="muted">${esc(t.why)}${t.readerWhy ? ' ｜ 读者：' + esc(t.readerWhy) : ''}</div></div><button class="small ghost useTitle" data-i="${i}">用这个</button></div>`).join('')}
+    <h3>简介</h3><pre class="box">${esc(d.intro)}</pre>
+    <h3>当前采用的作品信息（和下方选择同步，改了这里立刻变）</h3><pre class="box" id="curMetaBox">加载中…</pre>
+    <h3>AI 本次给的作品信息（番茄创建作品页）</h3><pre class="box">${esc(d.meta ? metaSummary(d.meta) : (d.tags || []).join('、'))}</pre>${(d.metaProblems || []).length ? `<p class="muted bad">AI 给的标签有 ${d.metaProblems.length} 处不符合番茄词表，已自动去掉：${esc(d.metaProblems.join('；'))}</p>` : ''}${d.meta ? '<div class="row"><button class="small ghost" id="btnUseMeta">只采用这组标签（填入下方选择器）</button></div>' : ''}
+    <h3>封面提示词</h3><pre class="box">${esc(d.coverPrompt?.zh || '')}</pre><pre class="box">${esc(d.coverPrompt?.en || '')}</pre><pre class="box">负面：${esc(d.coverPrompt?.negative || '')}</pre>
+    <div class="row"><button class="ghost" id="btnUseAll">全部采用（书名用推荐的）</button><span class="muted">采用后在下方还能改，记得保存</span></div>`
+  updateCurMeta()
+  document.querySelectorAll('.useTitle').forEach((x) => x.onclick = () => { $('#fTitle').value = d.titles[x.dataset.i].title; $('#packMsg').textContent = '书名已填入，点「保存」生效' })
+  if ($('#btnUseMeta')) $('#btnUseMeta').onclick = () => {
+    if (!FQ) return
+    meta = metaFrom({ meta: d.meta, defaultAudience: meta?.audience }); renderMeta(); packDirty = true
+    $('#mMsg').classList.remove('bad'); $('#mMsg').textContent = '已把 AI 这组标签填到选择器里，可继续点选修改，确认后点「保存」'
+    $('#mSummary').scrollIntoView({ block: 'center' })
+  }
+  $('#btnUseAll').onclick = () => {
+    $('#fTitle').value = d.titles[best]?.title || $('#fTitle').value; $('#fIntro').value = d.intro
+    if (d.meta && FQ) { meta = metaFrom({ meta: d.meta, defaultAudience: meta?.audience }); renderMeta() }
+    $('#fCoverZh').value = d.coverPrompt?.zh || ''; $('#fCoverEn').value = d.coverPrompt?.en || ''; $('#fCoverNeg').value = d.coverPrompt?.negative || ''
+    $('#introLen').textContent = `（${d.intro.length} 字）`; $('#packMsg').textContent = '已填入，点「保存」生效'
+  }
+}
+$('#fIntro').oninput = () => { $('#introLen').textContent = `（${$('#fIntro').value.length} 字）` }
+$('#btnPack').onclick = () => tryApi('/api/package', { id: cur.book, instruction: $('#packIns').value, meta: collectMeta() }) // 把当前已选标签一并交给包装编辑，让它在此基础上保留/补全
+$('#fCoverZh').addEventListener('input', () => { $('#fCoverEn').value = '' })
+$('#btnCover').onclick = async () => { const extra = $('#coverExtra').value; if (!(await $('#btnSavePack').onclick())) return; tryApi('/api/cover', { id: cur.book, extra }) }
+$('#btnRecompose').onclick = async () => { if ($('#btnRecompose').dataset.ai === 'true' && !confirm('这张封面由 AI 写字，改字会调用付费图片编辑。确定开始吗？')) return; const r = await tryApi('/api/cover/recompose', { id: cur.book }); if (r) { if (!r.aiText) await openBook(cur.book, 'pPack'); $('#packMsg').textContent = r.unchanged ? '封面记录的书名和笔名已是当前值，无需改字；请看图确认字形。' : r.aiText ? '已开始付费封面改字，尚未完成；请等待顶部任务结束后看新图核对。' : '已按当前书名和笔名重新压字，封面时间已更新（本机免费）' } else $('#packMsg').textContent = '重新压字没有完成，看上面的提示' }
+$('#btnSaveCoverSet').onclick = async () => { const r = await tryApi('/api/settings', { penName: $('#fPen').value, coverWidth: $('#fCw').value, coverHeight: $('#fCh').value }); if (r) { settings = r; $('#packMsg').textContent = '✅ 笔名和尺寸已保存（已有封面点「只重新压书名/笔名」即可更新）' } }
+$('#btnSavePack').onclick = async () => {
+  const r = await tryApi('/api/package/apply', { id: cur.book, title: $('#fTitle').value, intro: $('#fIntro').value, meta: collectMeta(), coverPrompt: { zh: $('#fCoverZh').value, en: $('#fCoverEn').value, negative: $('#fCoverNeg').value } })
+  if (r) { packDirty = false; await openBook(cur.book, 'pPack'); $('#packMsg').textContent = '✅ 已保存。封面图不会自动改字；已有封面请点更新文字；AI 写字封面需要付费编辑，本机压字免费' }
+  return !!r
+}
+
+// ── 导出 ──
+function renderExport() {
+  const b = cur.bookData; if (!b) return
+  const p = b.package || {}, words = b.chapters.reduce((a, c) => a + (c.chars || 0), 0)
+  // 全部章节都列出（以前只列前 8 章，和顶部「10 章」对不上 —— Q042）
+  const lines = b.chapters.map((c) => `第${c.n}章 ${c.title || ''}　${c.chars || 0} 字`).join('\n')
+  $('#exportPreview').textContent = `书名：${b.title}\n笔名：${settings.penName || '（未设）'}\n简介（${(p.intro || '').length} 字）：${p.intro || '（还没有，去「书名·简介·封面」生成）'}\n${p.meta ? '番茄作品信息：\n' + metaSummary(p.meta) : '标签：' + ((p.tags || []).join('、') || '（未设置）')}\n总字数：${words} 字（${words >= 20000 ? '已到 2 万字申请线' : '未到 2 万字申请线'}；该申请线只适用于从零开书任务，打磨已有稿件时不要求补字）· ${b.chapters.length} 章\n封面：${p.cover?.file ? (p.cover.size || '') + '，' + (p.cover.model || '') : '还没有，去「书名·简介·封面」生成'}\n封面提示词（已保存的作品信息）：\n中文：${p.coverPrompt?.zh || '（未设置）'}\n英文：${p.coverPrompt?.en || '（未设置）'}\n负面：${p.coverPrompt?.negative || '（未设置）'}\n章节清单（完整正文在下载的 TXT 里）：\n${lines || '（还没有章节）'}`
+  let img = $('#exportCoverPrev')
+  if (p.cover?.file) {
+    if (!img) { img = document.createElement('img'); img.id = 'exportCoverPrev'; img.alt = '封面缩略图'; img.style.cssText = 'width:120px;border:1px solid #ddd;display:block;margin-top:8px'; $('#exportPreview').before(img) }
+    img.src = '/cover?id=' + encodeURIComponent(b.id) + '&t=' + Date.now(); img.style.display = ''
+    $('#exportCover').href = '/cover?dl=1&id=' + encodeURIComponent(b.id); $('#exportCover').style.display = ''
+  } else { if (img) img.style.display = 'none'; $('#exportCover').style.display = 'none' }
+  $('#btnExport').disabled = !b.chapters.length
+}
+$('#btnExport').onclick = () => { location.href = '/download?id=' + encodeURIComponent(cur.book) }
+$('#btnExportInfo').onclick = () => { location.href = '/download?what=info&id=' + encodeURIComponent(cur.book) }
+
+// ── 章节页 ──
+async function openChapter(n, tab) {
+  // 换章时清空改写意见：上一章写的要求不能带到下一章（模拟作者 2026-10-01 实测：第 1 章的意见残留在第 2 章框里，被拼接提交）
+  if (cur.n !== n) $('#ins').value = ''
+  cur.n = n; cur.data = await api(`/api/chapter?id=${encodeURIComponent(cur.book)}&n=${n}`)
+  show('chPage'); const d = cur.data
+  $('#chTitle').textContent = d.text.split('\n')[0]
+  const r = d.report || {}
+  const LBL = { hook_open: '开篇抓力', conflict: '冲突压迫', payoff: '爽点兑现', novelty: '脑洞新鲜', protagonist: '主角魅力', density: '节奏不水', dialogue: '对白画面', humor: '网文味', logic: '逻辑可信', cliff: '章末钩子' }
+  const dims = r.scores ? Object.entries(r.scores).map(([k, v]) => `<div class="dim"><b>${LBL[k] || k}</b> ${v.s}/10<div class="bar"><i style="width:${v.s * 10}%"></i></div><div class="muted">${esc(v.why)}</div></div>`).join('') : ''
+  const m = r.machine || {}
+  const hard = (m.hard || []).map((x) => `<li style="color:var(--bad)">${esc(x)}</li>`).join('')
+  const machItems = (m.items || []).filter((x) => x.score < 1).map((x) => `<li>${esc(x.label)}：${x.value} ${esc(x.hint)}</li>`).join('')
+  const redo = `<button class="small" id="btnReport" data-job>重做评审报告</button>`
+  $('#reportCard').innerHTML = !d.report ? `<p>这章还没有评审报告。</p>${redo}` : r.error ? `<h2>评审报告生成失败</h2><pre class="box bad">${esc(r.error)}</pre>
+    <p class="muted">正文已经保存，没有丢。${CUST ? '稍后重试一次即可；如果一直失败，请把上面的报错发给我们。' : '按上面的提示处理（例如余额不足就去充值，或在「⚙ 模型与 Agent」把「评审报告（打分）」改派给别的 agent），然后点：'}</p><div class="row">${redo}${CUST ? '' : '<button class="small ghost" id="goAgents">去改 agent</button>'}</div>` : `
+    ${(() => {
+      // 报告是不是评的当前这版：v1.2 起报告里存了正文指纹 textHash，和当前定稿指纹比；没有指纹的旧报告只能按时间粗判
+      const sameText = r.textHash ? r.textHash === d.textHash : null
+      const stale = sameText === false || (sameText == null && d.meta?.scoreStale)
+      return stale ? `<p class="bad" style="margin:0 0 6px">⚠ 这份报告评的<b>不是</b>当前定稿（正文在打分之后被改过：手改/润色/恢复旧版本/改章名等）。分数仅供参考，点右边「重做评审报告」给当前定稿重新打分。</p>`
+        : `<p class="muted" style="margin:0 0 6px">这份报告评的就是<b>当前定稿</b>${sameText ? '（已核对正文一致）' : ''}${r.at ? `，打分时间 ${new Date(r.at).toLocaleString('zh-CN')}` : ''}${r.from === 'revision' ? '。它是改写对比时给「改后」打的分，采用后直接沿用，没有重新打' : ''}。同一版重打出现 ±${settings.judgeNoise ?? 8} 分属于评审的正常波动。</p>`
+    })()}
+    <div class="row"><h2 style="margin:0">评审报告</h2><span class="score ${cls(r.total)}" style="font-size:20px" title="评审总分，0–100，和下面两个百分比不是一回事">${r.total ?? '—'} 分 · 总分</span><span title="预计会点下一章的读者比例，不是评分">追读意愿 <b>${r.readNext ?? '—'}%</b></span><span class="muted" title="和爆款样本的文体统计相似度，不是好坏分">爆款相似度 ${m.score ?? '—'}/100</span>${redo}</div>
+    <p class="muted">三个数各算各的：总分高不代表追读高，相似度只说明像不像爆款样本的句式，不参与「建议改写 / 建议重写」。</p>
+<p><b>👍 最好的地方：</b>${esc(r.best)}</p><p><b>👎 最伤追读：</b>${esc(r.worst)}</p>
+    <p><b>改进建议：</b></p><ol>${(r.fixes || []).map((f) => `<li>${esc(f)}</li>`).join('')}</ol>
+    <details><summary>各项得分</summary><div class="dims">${dims}</div></details>
+    <details><summary>和爆款的文体差距（机器统计）</summary><ul>${hard}${machItems || '<li>各项都在爆款范围内</li>'}</ul></details>
+    ${d.judge ? `<details><summary>为什么选了这个版本</summary>${d.judge.bouts.map((b) => `<p>版本${b.a} vs 版本${b.b} → 选版本${b.final === 1 ? b.b : b.a}：${esc(b.reasons?.[0] || '')}</p>`).join('')}</details>` : ''}`
+  $('#btnReport').onclick = () => tryApi('/api/report', { id: cur.book, n: cur.n })
+  if ($('#goAgents')) $('#goAgents').onclick = openAgents
+  $('#chTabs').innerHTML = `<button data-t="final" title="下面正文框现在显示的就是定稿">① 当前定稿</button>` + d.candidates.map((_, i) => `<button data-t="${i + 1}" title="点一下，下面正文框换成这版初稿">初稿候选 ${i + 1}${d.judge?.winner === i + 1 ? '（当初自动选中）' : ''}</button>`).join('') + (d.revision ? `<button data-t="revision" title="点一下，下面正文框换成还没采用的改写稿">改写稿（待决定）</button>` : '') + (d.polished ? `<button data-t="polished" title="点一下，下面正文框换成润色稿">润色稿</button>` : '') + (d.plan ? `<button data-t="plan" title="点一下，下面显示的是节拍不是正文">本章节拍</button>` : '')
+  document.querySelectorAll('#chTabs button').forEach((x) => x.onclick = () => setTab(x.dataset.t))
+  const pm = settings.polish || 'off'
+  $('#btnPolish').textContent = pm === 'off' || pm === 'llm' ? '✨ 人工润色（让文字更像人写的）' : `人工润色：${polishModes[pm] || pm}`
+  const pi = d.polishInfo
+  $('#polishNote').textContent = !pi ? '润色只改表达不改故事，几分钟出一版「润色稿」，你对比满意后再点采用。' : pi.ok ? `上次润色：${pi.note}${pi.cost && !CUST ? `，¥${pi.cost}` : ''}。点上面「润色稿」标签对比。` : `上次润色失败：${pi.why}`
+  setTab(tab && (tab !== 'polished' || d.polished) ? tab : 'final')
+  const H = d.history, hasLegacy = H.some((h) => h.score == null && !h.replacedBy)
+  // 和当前定稿正文相同的旧版本不算「可恢复的最高分」（模拟用户实测：恢复后提示仍说那条是最高分，误导再恢复一次）
+  const top = H.filter((h) => h.score != null && !(h.hash && h.hash === d.textHash)).sort((a, b) => b.score - a.score)[0]
+  $('#hist').innerHTML = H.length ? `<b>旧版本（共 ${H.length} 个，新的在上；恢复时分数和评审报告跟着恢复）</b>
+    ${top ? `<p style="margin:4px 0">${d.meta?.score != null && d.meta.score >= top.score ? `当前定稿 <b>${d.meta.score} 分</b>，不低于任何有分数记录的旧版本（其中最高 #${H.length - H.indexOf(top)}，${top.score} 分）。` : `有分数记录的旧版本里最高的是 <b>#${H.length - H.indexOf(top)}（${top.score} 分）</b>；当前定稿 ${d.meta?.score ?? '未评分'} 分。`}恢复一个旧版本时，当前定稿也会变成一条新的旧版本，所以编号会往后加一个。「存档时间」是这一版被换下来的时刻，所以评审报告的打分时间早于它是正常的。</p>` : ''}
+    <table style="margin-top:6px"><thead><tr><th>#</th><th>保存时间</th><th>章名</th><th>存档时分数（非本次对比分）</th><th>字数</th><th>为什么被替换</th><th></th></tr></thead><tbody>
+    <tr style="background:#fff6e0"><td><b>当前</b></td><td>${d.meta?.committedAt ? new Date(d.meta.committedAt).toLocaleString('zh-CN') : '—'}</td><td>${esc((d.text || '').split('\n')[0])}</td><td>${d.meta?.score != null ? `<span class="score ${cls(d.meta.score)}">${d.meta.score} 分</span>` : '<span class="muted">未评分</span>'}</td><td>${(d.text || '').split('\n').slice(1).join('').replace(/\s/g, '').length} 字</td><td colspan="2"><b>← 这是当前定稿</b>，不用恢复</td></tr>
+    ${H.map((h, i) => { const same = h.hash && h.hash === d.textHash; return `<tr${same ? ' class="muted"' : ''}><td>${H.length - i}</td><td>${fmtAt(h)}</td><td>${esc(h.title || '')}</td><td>${h.score != null ? `<span class="score ${cls(h.score)}">${h.score} 分</span>` : '<span class="muted" title="v1.2 之前保存的版本没有记分数">未记录</span>'}</td><td>${h.chars != null ? h.chars + ' 字' : '—'}</td><td style="white-space:normal;max-width:260px">${esc(h.replacedBy || '未记录')}</td><td style="white-space:nowrap"><button class="small ghost prev" data-i="${i}">预览</button> <button class="small ghost diff" data-i="${i}">差异摘要</button> ${same ? '<span class="muted">正文与当前定稿相同</span>' : `<button class="small ghost rb" data-i="${i}">恢复 #${H.length - i}</button>`}</td></tr>` }).join('')}</tbody></table>
+    ${hasLegacy ? '<p class="muted">「未记录」的是 v1.2 升级前保存的旧版本，当时没有存分数和原因，<b>不参与上面「最高分」的比较</b>；恢复这类版本后需要点「重做评审报告」重新打分。</p>' : ''}
+    <p><label><input type="checkbox" id="rbTitle"> 恢复时连章名也换成旧版的</label> <span class="muted">（默认不勾：只换正文、保留当前章名）</span></p>
+    <p class="muted">注意：旧版本的分数是各自当时打的，评审每次有 ±${settings.judgeNoise ?? 8} 分波动，相差几分的版本不一定真有好坏之分。想公平比较两版，用「按我的想法改这一章」的对比功能（同一时刻同时打分）。</p>` : ''
+  document.querySelectorAll('#hist button.diff').forEach((x) => x.onclick = async () => {
+     const h = H[x.dataset.i], no = H.length - Number(x.dataset.i)
+     const r = await tryApi('/api/history?id=' + encodeURIComponent(cur.book) + '&n=' + cur.n + '&file=' + encodeURIComponent(h.file)); if (!r) return
+     const before = String(d.text || '').split(/\n\s*\n/).filter(Boolean), old = String(r.text || '').split(/\n\s*\n/).filter(Boolean)
+     const oldSet = new Set(old), newSet = new Set(before)
+     const removed = old.filter((p) => !newSet.has(p)).length, added = before.filter((p) => !oldSet.has(p)).length
+     $('#chWhich').textContent = `旧版本 #${no} 与当前定稿：旧版独有 ${removed} 段，当前新增 ${added} 段；这是按段落文本的摘要，详情请点「预览」。`
+     $('#chWhich').scrollIntoView({ behavior: 'smooth', block: 'start' })
+   })
+   document.querySelectorAll('#hist button.prev').forEach((x) => x.onclick = async () => {
+    const h = H[x.dataset.i], no = H.length - Number(x.dataset.i)
+    const r = await tryApi('/api/history?id=' + encodeURIComponent(cur.book) + '&n=' + cur.n + '&file=' + encodeURIComponent(h.file)); if (!r) return
+    document.querySelectorAll('#chTabs button').forEach((b) => b.classList.remove('on'))
+    $('#chText').textContent = r.text
+    $('#chWhich').textContent = `正在预览：旧版本 #${no}（${h.score != null ? h.score + ' 分' : '未记录分数'}，${h.chars} 字）—— 只是看看，定稿没有变。满意再点「恢复 #${no}」`
+    $('#btnPick').classList.add('hide'); $('#btnAdoptPolish').classList.add('hide')
+    $('#chWhich').scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
+  document.querySelectorAll('#hist button.rb').forEach((x) => x.onclick = async () => {
+    const h = H[x.dataset.i], no = H.length - Number(x.dataset.i)
+    // 先把旧版本正文显示出来再问（模拟用户实测：确认框里看不到正文，只能先恢复再核对）
+    const r = await tryApi('/api/history?id=' + encodeURIComponent(cur.book) + '&n=' + cur.n + '&file=' + encodeURIComponent(h.file))
+    if (!r) { await openChapter(cur.n); $('#chWhich').textContent = '⚠ 这个旧版本已经找不到了（列表可能过期），已刷新列表，请重新选择。'; return }
+    document.querySelectorAll('#chTabs button').forEach((b) => b.classList.remove('on'))
+    $('#chText').textContent = r.text
+    $('#chWhich').textContent = `正在预览：旧版本 #${no}（准备恢复，还没生效）`
+    $('#chWhich').scrollIntoView({ behavior: 'smooth', block: 'start' })
+    await new Promise((ok) => setTimeout(ok, 50))
+    const curTitle = (d.text || '').split('\n')[0].trim(), oldTitle = (r.text || '').split('\n')[0].trim()
+    if (!confirm(`恢复到旧版本 #${no}？（正文已显示在上方，可先看再决定）\n存档时间：${fmtAt(h)}\n当时分数：${h.score ?? '未记录'}　字数：${h.chars ?? '未记录'}\n被替换原因：${h.replacedBy || '未记录'}\n章名：${!$('#rbTitle')?.checked || oldTitle === curTitle ? `保持「${curTitle}」不变` : `换成旧版的「${oldTitle}」`}\n\n当前定稿也会存进旧版本列表，可以再恢复回来。`)) { setTab(cur.tab || 'final'); return }
+    // 章名是否一起恢复由列表上方的勾选框决定（模拟用户实测：用「确定/取消」表达二选一会让人点反）
+    const keepTitle = !$('#rbTitle')?.checked
+    if (await tryApi('/api/rollback', { id: cur.book, n: cur.n, file: h.file, keepTitle })) { await openChapter(cur.n); $('#chWhich').textContent = `✅ 已恢复旧版本 #${no}${keepTitle ? '（章名没变）' : '（章名也恢复了）'}，正在显示：当前定稿${h.score == null ? '（这个旧版本没有分数记录，请点上方「重做评审报告」）' : `（${h.score} 分）`}。它在列表里已变成「当前」行。` }
+    else await openChapter(cur.n)
+  })
+  renderRevision(d)
+}
+// ── 改写稿对比（v1.2：改写稿不直接替换定稿，同一评审同时给改前改后打分）──
+// 旧版本时间：后台给的 ISO 时间无效时，从文件名里的毫秒时间戳兜底（主办方截图：列表整列「Invalid Date」）
+function fmtAt(h) { const t = h.at ? new Date(h.at) : null; if (t && !isNaN(t)) return t.toLocaleString('zh-CN'); const m = String(h.file || '').match(/^\d+-(\d{12,})/); return m ? new Date(Number(m[1])).toLocaleString('zh-CN') : '时间未知' }
+function renderRevision(d) {
+  const v = d.revision, card = $('#revCard')
+  $('#btnRevise').textContent = v ? '再改一版（替换当前改写稿）' : '按我的想法改这一章'
+  if (!v) { card.classList.add('hide'); return }
+  card.classList.remove('hide')
+  const c = v.compare || {}, A = c.before || {}, B = c.after || {}
+  const dimRow = (k, lbl) => { const a = A.scores?.[k]?.s, b = B.scores?.[k]?.s; const dd = a != null && b != null ? b - a : null; return `<tr><td>${lbl}</td><td>${a ?? '—'}</td><td>${b ?? '—'}</td><td style="color:${dd > 0 ? 'var(--good,#2a7)' : dd < 0 ? 'var(--bad)' : 'inherit'}">${dd == null ? '' : (dd > 0 ? '+' : '') + dd}</td></tr>` }
+  const LBL = { hook_open: '开篇抓力', conflict: '冲突压迫', payoff: '爽点兑现', novelty: '脑洞新鲜', protagonist: '主角魅力', density: '节奏不水', dialogue: '对白画面', humor: '网文味', logic: '逻辑可信', cliff: '章末钩子' }
+  const worse = c.advice ? c.advice.level === 'worse' : A.total != null && B.total != null && B.total < A.total
+  const advColor = { better: 'var(--good,#2a7)', worse: 'var(--bad)', mixed: '#b80', same: 'inherit' }[c.advice?.level] || 'inherit'
+  // 内测 friend-01 卡在「改写 → 差不多 → 再改」循环（第 1 章改了 6 次）：评审分不出高下时直接给出路，一键定稿并写下一章
+  const lv = c.advice?.level
+  const settle = (!v.compare || A.error || B.error || c.pair?.error) ? null : lv === 'better' ? 'better' : (lv === 'same') ? 'tie' : null
+  const best = Math.max(A.total ?? 0, B.total ?? 0)
+  card.innerHTML = `<h2 style="margin-top:0">有一版改写稿等你决定 <span class="muted" style="font-size:14px">（这版尚未采用；当前定稿以正文标签和旧版本列表的「当前」行为准）</span></h2>
+    <p class="muted">改写意见：${esc(v.instruction)}</p>
+    ${v.diff ? `<p style="background:#fff6e0;padding:8px">改动幅度：${v.diff.after} 段里 <b>${v.diff.kept}</b> 段原样保留、<b>${v.diff.added}</b> 段是新写或改过的；原稿有 ${v.diff.removed} 段被删或改掉。<b>写手不一定执行了全部建议</b>，采用前请点「看改写稿全文」核对。</p>
+    ${v.checks?.length ? `<ul>${v.checks.map((x) => `<li><label><input type="checkbox"> 我已核对：${esc(x.text)}</label></li>`).join('')}</ul><p class="muted">文字核对不代表语义落实；无引号的结构性要求列为待人工验收。勾选只记录本次阅读核对，不自动采用稿件。</p>` : `<p class="muted">改写意见里没有用引号标出的原句（认「」『』“”和英文引号），软件对不上哪一条执行了。</p>`}
+    ${v.diff.changes?.length ? `<details id="revDiff"><summary>逐段看改了哪里（${v.diff.changes.length} 处）</summary>${v.diff.changes.map((c, i) => `<div class="box" style="margin:6px 0;white-space:pre-wrap"><label><input type="checkbox" data-rev-block="${i}"> 仅采用这处修改</label><b>原稿第 ${c.at} 段 · ${c.del.length && c.add.length ? '改写' : c.del.length ? '删除' : '新增'}</b>${c.del.map((x) => `<div style="color:var(--bad);text-decoration:line-through">− ${esc(x)}</div>`).join('')}${c.add.map((x) => `<div style="color:var(--good,#2a7)">+ ${esc(x)}</div>`).join('')}</div>`).join('')}</details>` : ''}` : ''}
+    ${v.stale ? `<p class="bad">⚠ ${esc(v.stale)}</p>` : ''}
+    ${!v.compare ? '<p>还没有对比结果。</p>' : `
+    ${c.advice ? `<p style="font-size:18px;font-weight:bold;color:${advColor}">结论：${esc(c.advice.text)}</p>` : ''}
+    ${settle ? `<div class="box" id="settleBox" style="background:#eef8ee;border:2px solid var(--good,#2a7);padding:12px;margin:8px 0">
+      <p style="font-size:17px;margin:0 0 6px"><b>${settle === 'better' ? '改后更好，采用它然后接着写吧。' : '两版水平差不多，这一章可以定了。'}</b></p>
+      <p class="muted" style="margin:0 0 8px">${settle === 'better' ? '' : `评审每次打分本来就有 ±${c.noise ?? 8} 分的波动，再改下去分数会上下跳，但稿子不会明显变好。`}${best >= 70 ? `这一章已经 ${best} 分，到了「可直接用」的线。` : ''}很多人卡在反复改第 1 章，其实读者更在意后面有没有接上。</p>
+      <div class="row">${settle === 'better' ? '' : '<button id="btnSettleKeep" class="big" data-job>保留原稿，写下一章</button>'}<button id="btnSettleAdopt" class="${settle === 'better' ? 'big' : 'ghost'}" data-job>采用改写稿，写下一章</button></div>
+    </div>` : ''}
+    <p class="muted">下面的分数是刚才用同一个评审、同一时刻给「改前（当前定稿）」和「改后」重新打的${c.at ? `（打分时间 ${new Date(c.at).toLocaleString('zh-CN')}）` : ''}，两个分数可以直接比。旧版本列表里的分数是各自存档时的分，不是这次一起打的。<br>上方评审报告是更早打的，和这里的「改前」差几分属于正常波动，<b>对比以这里为准</b>。</p>
+    <div class="row"><span>总分：改前 <span class="score ${cls(A.total)}" style="font-size:18px">${A.total ?? '失败'}</span> → 改后 <span class="score ${cls(B.total)}" style="font-size:18px">${B.total ?? '失败'}</span></span>
+    <span>预计点下一章：${A.readNext ?? '—'}% → ${B.readNext ?? '—'}%</span><span>两版放一起让评审二选一：<b>${esc(c.verdict)}</b></span></div>
+    ${A.total != null && B.total != null ? `<p class="muted">分差 ${B.total - A.total > 0 ? '+' : ''}${B.total - A.total} 分（改后减改前）。误差带是 ±${c.noise ?? 8}：绝对值小于等于 ${c.noise ?? 8} 都算在误差内，不能写成「超过」。${Math.abs(B.total - A.total) <= (c.noise ?? 8) ? `<b>这一档在误差内</b>，单看分数分不出好坏，主要参考「二选一」和你自己读的感受。` : `这一档超出误差，分数差异比较可信。`}${c.pair && !c.pair.error && ((c.pair.winner === 1) !== (B.total > A.total)) && c.pair.winner !== -1 && Math.abs(B.total - A.total) > 0 ? '<b>二选一和分数方向不一致</b>，两个信号打架，请以你自己读两版的感受为准，不要只看其中一句。' : ''}</p>` : ''}
+    ${A.error || B.error || c.pair?.error ? `<pre class="box bad">${esc([A.error, B.error, c.pair?.error].filter(Boolean).join('\n'))}</pre>` : ''}
+    <details open><summary>各项得分对比</summary><table><tr><th>维度</th><th>改前</th><th>改后</th><th>变化</th></tr>${Object.entries(LBL).map(([k, l]) => dimRow(k, l)).join('')}</table></details>
+    ${c.pair?.reasons ? `<details><summary>成对比较的理由</summary>${c.pair.reasons.map((x) => `<p>${esc(x)}</p>`).join('')}</details>` : ''}`}
+    <div class="row" style="margin-top:10px"><button id="btnRevPartial" class="ghost">预览勾选修改的合并稿</button><button id="btnRevPartialSave" class="ghost hide" data-job>保存合并稿（旧评分过期）</button><button id="btnRevView" class="ghost">看改写稿全文</button><button id="btnRevAdopt" data-job>采用改写稿</button><button id="btnRevDiscard" class="ghost" data-job>放弃，保留原稿</button><button id="btnRevCompare" class="ghost small" data-job>重新对比</button></div>`
+  let partial = null
+  const selectedBlocks = () => [...document.querySelectorAll('[data-rev-block]:checked')].map(x => Number(x.dataset.revBlock))
+  $('#btnRevPartial').onclick = () => {
+    if (v.stale) return alert('改写候选的原稿已经变化，请重新生成候选再选择修改。')
+    const chosen = selectedBlocks(); if (!chosen.length) return alert('先在逐段差异中勾选要采用的修改。')
+    const lines = d.text.split('\n'), title = lines.shift(), paras = lines.map(x => x.trim()).filter(Boolean)
+    for (const i of chosen.slice().reverse()) {
+      const block = v.diff.changes[i], at = block.at - 1
+      if (block.del.some((x, j) => paras[at + j] !== x)) return alert('差异位置已经变化，请重新打开章节后再选择。')
+      paras.splice(at, block.del.length, ...block.add)
+    }
+    partial = { base: d.text, text: title + '\n\n' + paras.join('\n\n') + '\n', chosen: chosen.join(',') }
+    $('#chText').textContent = partial.text; $('#chWhich').textContent = '正在预览：仅合并勾选修改（尚未保存，不沿用改写稿评分）'
+    $('#btnRevPartialSave').classList.remove('hide')
+  }
+  $('#btnRevPartialSave').onclick = async () => {
+    if (!partial || partial.chosen !== selectedBlocks().join(',')) return alert('勾选已变化，请重新预览合并稿。')
+    const fresh = await tryApi(`/api/chapter?id=${encodeURIComponent(cur.book)}&n=${cur.n}`)
+    if (!fresh || fresh.text !== partial.base) return alert('定稿已经变化，请重新打开章节再合并。')
+    if (!confirm('保存预览的合并全文？原定稿会归档到旧版本，评分标为过期，改写候选保留。')) return
+    if (await tryApi('/api/save', { id: cur.book, n: cur.n, text: partial.text })) await openChapter(cur.n)
+  }
+  $('#btnRevView').onclick = () => { setTab('revision'); $('#chWhich').scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+  $('#btnRevAdopt').onclick = async () => {
+    const drop = A.total != null && B.total != null && B.total < A.total
+    const ask = drop ? `改后 ${B.total} 分，低于改前 ${A.total} 分。确定还要采用吗？原稿会保存在旧版本里，替换原因会写明这两个分数。` : (worse ? '评审认为改后更差，确定还要采用吗？原稿会保存在旧版本里，可以恢复。' : '')
+    const dimensionChanges = Object.entries(LBL).map(([k, label]) => { const a = A.scores?.[k]?.s, b = B.scores?.[k]?.s; return a != null && b != null && a !== b ? `${label}：${a} → ${b}` : '' }).filter(Boolean).join('；')
+    if (!ask || confirm(ask + '\n维度变化：' + (dimensionChanges || '无可比较的变化') + '\n分数不是对修改要求落实情况的验收，请读全文和逐段差异再决定。')) { if (await tryApi('/api/revision/adopt', { id: cur.book, n: cur.n })) { await openChapter(cur.n); $('#ins').value = ''; $('#chWhich').textContent = `✅ 已采用改写稿，它现在就是定稿（${B.total ?? '—'} 分，来自刚才的改写对比，不是新打的分）。原稿在页面最下方「旧版本」里，替换原因写着改前改后分数。` } }
+  }
+  $('#btnRevDiscard').onclick = async () => { if (confirm('放弃这版改写稿？定稿保持不变。')) { if (await tryApi('/api/revision/discard', { id: cur.book, n: cur.n })) { await openChapter(cur.n); $('#ins').value = ''; $('#chWhich').textContent = `✅ 已放弃改写稿。定稿还是原来那版（${d.meta?.score ?? '—'} 分），正在显示：当前定稿` } } }
+  $('#btnRevCompare').onclick = () => tryApi('/api/revision/compare', { id: cur.book, n: cur.n })
+  const settleThen = async (path, msg) => {
+    if (!(await tryApi(path, { id: cur.book, n: cur.n }))) return
+    await openChapter(cur.n); $('#ins').value = ''
+    $('#chWhich').textContent = `✅ ${msg}，第 ${cur.n} 章定稿了。正在写下一章（2–4 分钟），写好后在书页章节列表里能看到。`
+    tryApi('/api/write', { id: cur.book, count: 1 })
+  }
+  if ($('#btnSettleKeep')) $('#btnSettleKeep').onclick = () => settleThen('/api/revision/discard', '已保留原稿')
+  if ($('#btnSettleAdopt')) $('#btnSettleAdopt').onclick = () => settleThen('/api/revision/adopt', '已采用改写稿')
+}
+function setTab(t) {
+  cur.tab = t; const d = cur.data
+  document.querySelectorAll('#chTabs button').forEach((x) => x.classList.toggle('on', x.dataset.t === t))
+  const TAB = { final: '当前定稿', plan: '本章节拍', polished: '润色稿（未采用）', revision: '改写稿（未采用，待你决定）' }
+  $('#chWhich').textContent = '正在显示：' + (TAB[t] || `初稿候选 ${t}`)
+  $('#chText').textContent = t === 'final' ? d.text : t === 'plan' ? d.plan : t === 'polished' ? d.polished : t === 'revision' ? (d.revision?.text || '') : d.candidates[Number(t) - 1]
+  $('#btnPick').classList.toggle('hide', !/^\d+$/.test(t)); $('#btnAdoptPolish').classList.toggle('hide', t !== 'polished')
+  $('#chText').contentEditable = 'false'; $('#btnSaveEdit').classList.add('hide')
+  selReset() // 换标签/换章：划选状态和对比框一并清掉（替换的目标是定稿，不能停在别的版本上）
+}
+$('#addCharacter').onclick = () => { const rows = collectCharacters(); rows.push({}); renderCharacters({ characters: rows }) }
+$('#saveCharacters').onclick = async () => { const r = await tryApi('/api/characters', { id: cur.book, characterCard: { characters: collectCharacters() } }); if (r?.characterCard) { cur.bookData.characterCard = r.characterCard; loadCharacters(r.characterCard); $('#characterMsg').textContent = `已保存 ${r.characterCard.characters.length} 个人物；后续写章会自动带入` } }
+// 带稿导入：浏览器里读文件（UTF-8，读出乱码再按 GB18030 重读——Windows 记事本老文件常是 GBK）
+$('#impFile').onchange = () => { const f = $('#impFile').files[0]; if (f && !$('#impTitle').value.trim()) $('#impTitle').value = f.name.replace(/\.(txt|md|markdown)$/i, '').slice(0, 30) }
+$('#btnImport').onclick = async () => {
+  const f = $('#impFile').files[0], msg = $('#impMsg')
+  if (!f) { msg.textContent = '先点「选择文件」选一个 TXT 或 Markdown 文件'; return }
+  if (!$('#impTitle').value.trim()) { msg.textContent = '请填书名'; return }
+  if (f.size > 11e6) { msg.textContent = '文件超过 11MB，请分卷导入'; return }
+  const buf = await f.arrayBuffer()
+  let text = new TextDecoder('utf-8').decode(buf)
+  if ((text.match(/\uFFFD/g) || []).length > 5) { try { text = new TextDecoder('gb18030').decode(buf) } catch {} }
+  msg.textContent = '正在导入…'
+  try {
+    const r = await api('/api/import', { title: $('#impTitle').value.trim(), text, style: currentStyleSel() })
+    msg.textContent = `✅ 导入《${r.title}》：${r.chapters} 章，${r.chars} 字。${(r.warnings || []).join('；')}`
+    $('#impFile').value = ''; $('#impTitle').value = ''
+    await loadBooks(); await openBook(r.id)
+  } catch (e) { msg.textContent = '❌ ' + e.message }
+}
+$('#btnConcepts').onclick = () => { $('#concepts').innerHTML = ''; tryApi('/api/concepts', { idea: $('#idea').value, style: currentStyleSel(), voice: window._voice }) }
+$('#btnWrite1').onclick = () => tryApi('/api/write', { id: cur.book, count: 1 })
+$('#btnWriteNext').onclick = () => tryApi('/api/write', { id: cur.book, count: 1 })
+$('#btnWrite3').onclick = () => tryApi('/api/write', { id: cur.book, count: 3 })
+$('#btnDrop').onclick = async () => { if (confirm('删掉最后一章？（正文会保存到旧版本里，可以重写）')) { await tryApi('/api/drop', { id: cur.book }); openBook(cur.book) } }
+$('#btnBack').onclick = () => { show('home'); loadBooks() }
+$('#btnBack2').onclick = () => openBook(cur.book)
+$('#btnRevise').onclick = () => tryApi('/api/revise', { id: cur.book, n: cur.n, instruction: $('#ins').value })
+$('#ins').addEventListener('input', () => { const n = $('#ins').value.length; $('#insHint').textContent = `${n} / 2000 字${n >= 2000 ? '，已到上限，再写不会送出' : ''}。换章会清空；切到初稿候选再切回来不会清空。标原句认「」『』“”和英文引号。` })
+$('#btnEdit').onclick = () => { setTab('final'); $('#chText').contentEditable = 'true'; $('#chText').focus(); $('#btnSaveEdit').classList.remove('hide') }
+$('#btnSaveEdit').onclick = async () => { if (await tryApi('/api/save', { id: cur.book, n: cur.n, text: $('#chText').innerText })) openChapter(cur.n) }
+$('#btnPick').onclick = async () => { if (confirm('用这个候选版本替换定稿？')) { await tryApi('/api/pick', { id: cur.book, n: cur.n, k: Number(cur.tab) }); openChapter(cur.n) } }
+// 设置里没开润色也能直接点：默认用 LLM 版（只出候选稿，不会替换定稿）
+$('#btnPolish').onclick = () => { const pm = (settings.polish || 'off') === 'off' ? 'llm' : settings.polish; tryApi('/api/polish', { id: cur.book, n: cur.n, mode: pm }); cur.tab = 'polished' }
+$('#btnAdoptPolish').onclick = async () => { if (confirm('用润色稿替换定稿？当前定稿会保存到旧版本里。')) { await tryApi('/api/polish/adopt', { id: cur.book, n: cur.n }); openChapter(cur.n) } }
+$('#candSel').onchange = () => tryApi('/api/settings', { candidates: Number($('#candSel').value) })
+$('#polishSel').onchange = () => tryApi('/api/settings', { polish: $('#polishSel').value, ...($('#polishSel').value === 'off' ? { autoPolish: false } : {}) })
+$('#autoPolish').onchange = () => tryApi('/api/settings', { autoPolish: $('#autoPolish').checked })
+
+// ── 短篇投稿 ──
+let shortChannels = [], shortGenres = [], shortRows = [], shortCurrent = null, shortTab = 'body'
+const shortRelease = { competitive: '有竞争力', usable: '能用，建议人工改', blocked: '不建议投' }
+async function openShorts() {
+  show('shortPage')
+  try {
+    if (!shortChannels.length) { const r = await api('/api/short/channels'); shortChannels = r.channels || []; shortGenres = r.genres || []; $('#shortChannel').innerHTML = shortChannels.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join(''); $('#shortGenre').innerHTML = shortGenres.map((g) => `<option>${esc(g)}</option>`).join('') }
+    shortChannelChanged(); await loadShorts()
+  } catch (e) { $('#shortList').innerHTML = `<p class="bad">加载失败：${esc(e.message)}</p>` }
+}
+function shortChannelChanged() { const c = shortChannels.find((x) => x.id === $('#shortChannel').value); if (!c) return; $('#shortChannelHint').textContent = `${c.price || '价格待核实'} · 建议 ${c.sweet?.join('–') || '-'} 字${c.deadline ? ` · 截止 ${c.deadline}` : ''}${c.exclusive === true ? ' · 独家首发' : ''} · ${c.note || '投前请先核实渠道要求'}`; $('#shortExclusive').textContent = c.exclusive === true ? '该渠道要求独家首发，投出后别处不能再投' : '' }
+async function loadShorts() { const r = await api('/api/shorts'); shortRows = Array.isArray(r) ? r : []; $('#shortList').innerHTML = shortRows.length ? shortRows.map((x) => `<article class="tip" style="margin:8px 0"><div class="row" style="justify-content:space-between"><b>${esc(x.title)}</b><span class="score ${x.release === 'competitive' ? 'g' : x.release === 'usable' ? 'y' : 'r'}">${esc(shortRelease[x.release] || x.release)}</span></div><div class="muted">${esc(x.channel || '')} · ${x.chars ?? '-'} 字 · ${x.cost ? '¥' + x.cost : '未计费'} · ${esc(x.stage || '')}</div>${x.reasons?.length ? `<div class="muted">${esc(x.reasons.join('；'))}</div>` : ''}<div class="row" style="margin-top:6px"><button class="small" data-short-open="${esc(x.id)}">打开</button>${x.stage !== 'done' ? `<button class="small ghost" data-short-resume="${esc(x.id)}" data-job>继续生成</button>` : ''}</div></article>`).join('') : '<p class="muted">还没有短篇，选好渠道后点「一键写短篇」。' ; $('#shortList').querySelectorAll('[data-short-open]').forEach((b) => b.onclick = () => openShortDetail(b.dataset.shortOpen)); $('#shortList').querySelectorAll('[data-short-resume]').forEach((b) => b.onclick = () => tryApi('/api/short/resume', { id: b.dataset.shortResume })) }
+async function openShortDetail(id) { try { shortCurrent = await api('/api/short?id=' + encodeURIComponent(id)); shortTab = 'body'; renderShortDetail(); $('#shortDetail').classList.remove('hide') } catch (e) { alert(e.message) } }
+function renderShortDetail() { const d = shortCurrent, m = d.meta || {}; $('#shortDetailTitle').textContent = m.title || '短篇详情'; $('#shortDetailMeta').textContent = `${shortRelease[m.release] || m.release || ''} · ${m.genre || ''} · ${m.cost ? '¥' + m.cost : '未计费'}${m.reasons?.length ? ' · ' + m.reasons.join('；') : ''}`; $('#shortDetailText').textContent = shortTab === 'body' ? d.body : d.package; $('#shortTabBody').classList.toggle('on', shortTab === 'body'); $('#shortTabPackage').classList.toggle('on', shortTab === 'package') }
+function downloadShort() { if (!shortCurrent) return; const text = shortTab === 'body' ? shortCurrent.body : shortCurrent.package; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' })); a.download = `${shortCurrent.meta?.title || '短篇'}-${shortTab === 'body' ? '正文' : '投稿包'}.txt`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000) }
+$('#btnShorts').onclick = openShorts; $('#btnBackShort').onclick = () => { show('home'); loadBooks() }; $('#btnShortClose').onclick = () => $('#shortDetail').classList.add('hide'); $('#shortChannel').onchange = shortChannelChanged; $('#shortTabBody').onclick = () => { shortTab = 'body'; renderShortDetail() }; $('#shortTabPackage').onclick = () => { shortTab = 'package'; renderShortDetail() }; $('#shortCopy').onclick = () => shortCurrent && copyText(shortTab === 'body' ? shortCurrent.body : shortCurrent.package); $('#shortDownload').onclick = downloadShort
+$('#btnShortNew').onclick = async () => { const channelId = $('#shortChannel').value, genre = $('#shortGenre').value, idea = $('#shortIdea').value.trim(); if (!channelId || !genre) return; const r = await tryApi('/api/short/new', { channelId, genre, idea }); if (r) $('#shortIdea').value = '' }
+
+// ── 模型与 Agent ──
+let agentsCfg = null, prevPage = 'home'
+async function openAgents() {
+  prevPage = ['bookPage', 'chPage'].find((s) => !$('#' + s).classList.contains('hide')) || 'home'
+  agentsCfg = await api('/api/agents'); show('agentsPage'); renderAgents(); loadCalls()
+}
+function renderAgents() {
+  const A = agentsCfg.agents
+  $('#agentList').innerHTML = Object.entries(A).map(([id, a]) => `<div class="agent" data-id="${esc(id)}">
+    <div class="row" style="justify-content:space-between"><b>${esc(a.name)}</b><span class="muted">编号 ${esc(id)} · 密钥：${esc(a.keySource)}${a.keyMask ? ' ' + esc(a.keyMask) : ''}${a.usedBy?.length ? ' · 用于：' + esc(a.usedBy.join('、')) : ' · 当前没有任务用它'}</span></div>
+    <div class="grid" style="margin-top:8px">
+      <label for="n-${esc(id)}">名称</label><input type="text" id="n-${esc(id)}" data-k="name" value="${esc(a.name)}">
+      <label for="u-${esc(id)}">Base URL</label><input type="text" id="u-${esc(id)}" data-k="baseUrl" value="${esc(a.baseUrl)}" placeholder="https://api.deepseek.com">
+      <label for="k-${esc(id)}">API Key</label><input type="password" id="k-${esc(id)}" data-k="apiKey" placeholder="${a.keyMask ? '已配置 ' + esc(a.keyMask) + '，留空不改' : '粘贴 key'}" autocomplete="off">
+      <label for="e-${esc(id)}">或 .env 变量名</label><input type="text" id="e-${esc(id)}" data-k="keyEnv" value="${esc(a.keyEnv)}" placeholder="DEEPSEEK_API_KEY">
+      <label for="m-${esc(id)}">模型名</label><input type="text" id="m-${esc(id)}" data-k="model" value="${esc(a.model)}">
+      <label>单价（元/百万 token）</label><div class="row"><input type="number" step="0.1" min="0" data-k="priceIn" value="${a.priceIn ?? 0}" aria-label="输入单价" style="width:100px"> 输入 <input type="number" step="0.1" min="0" data-k="priceOut" value="${a.priceOut ?? 0}" aria-label="输出单价" style="width:100px"> 输出</div>
+    </div>
+    <div class="row" style="margin-top:8px"><button class="small ghost ping">试连接</button><button class="small ghost clearKey">清除直接填写的 key</button><button class="small ghost delAgent">删除</button><span class="muted pingMsg" role="status"></span></div>
+  </div>`).join('')
+  document.querySelectorAll('.agent').forEach((el) => {
+    const id = el.dataset.id
+    el.querySelector('.ping').onclick = async () => {
+      const m = el.querySelector('.pingMsg'); m.textContent = '请先保存再试连接（试连接用的是已保存的配置）…'
+      const r = await api('/api/agents/ping', { id }).catch((e) => ({ ok: false, error: e.message }))
+      m.innerHTML = r.ok ? `<span class="good">✅ 通了：${r.ms} ms，回复「${esc(r.reply)}」</span>` : `<span class="bad">❌ ${esc(r.error)}</span>`
+    }
+    el.querySelector('.clearKey').onclick = () => { collect(); agentsCfg.agents[id]._clearKey = true; el.querySelector('[data-k=apiKey]').placeholder = '保存后清除'; $('#agentsMsg').textContent = '点「保存」生效' }
+    el.querySelector('.delAgent').onclick = () => { if (!confirm('删除这个 agent？用到它的任务需要重新分配。')) return; collect(); delete agentsCfg.agents[id]; renderAgents() }
+  })
+  const opts = Object.entries(A).map(([id, a]) => [id, a.name])
+  let lastGroup = ''
+  const groups = [...new Set(agentsCfg.tasks.map((t) => t.group))]
+  const bulk = `<div class="box" style="grid-column:1/-1;margin:6px 0"><b>批量设置</b>：先选任务类别和 agent，再点「应用到本组」（仍需最后点「保存」）<select id="bulkGroup"><option value="">选择任务类别</option>${groups.map((g) => `<option>${esc(g)}</option>`).join('')}</select><select id="bulkAgent"><option value="">选择 agent</option>${opts.map(([id, n]) => `<option value="${esc(id)}">${esc(n)}</option>`).join('')}</select><button type="button" class="small ghost" id="bulkApply">应用到本组</button></div>`
+  $('#assignList').innerHTML = `<p id="assignNow" class="muted" style="margin:0 0 8px"></p>` + bulk + agentsCfg.tasks.map((t) => {
+    const g = t.group !== lastGroup ? `<div style="grid-column:1/-1;font-weight:bold;margin-top:6px">${esc(t.group)}</div>` : ''; lastGroup = t.group
+    const curId = agentsCfg.assign[t.id]
+    const curName = A[curId]?.name || '（未分配）'
+    return `${g}<label data-task-group="${esc(t.group)}"><b>${esc(t.label)}</b> <small class="muted">（${esc(t.id)}）</small><select data-task="${esc(t.id)}" title="任务：${esc(t.label)}；当前：${esc(curName)}" aria-label="任务 ${esc(t.label)}，当前 ${esc(curName)}">${opts.map(([id, n]) => `<option value="${esc(id)}" ${curId === id ? 'selected' : ''}>${esc(n)}</option>`).join('')}${A[curId] ? '' : '<option value="" selected>（请选择）</option>'}</select><span class="muted">当前：${esc(curName)}</span></label>`
+  }).join('')
+  const showAssign = () => { const bits = [...document.querySelectorAll('#assignList select[data-task]')].map((s) => `${s.dataset.task}=${s.selectedOptions[0]?.text || '未选'}`); $('#assignNow').textContent = '当前实际分配（改了要点「保存」才生效）：' + bits.join('；') }
+  $('#bulkApply').onclick = () => { const g = $('#bulkGroup').value, id = $('#bulkAgent').value; if (!g || !id) return; document.querySelectorAll(`#assignList label[data-task-group="${CSS.escape(g)}"] select`).forEach((s) => { s.value = id; s.dispatchEvent(new Event('change')) }); showAssign() }
+  showAssign()
+  document.querySelectorAll('#assignList select[data-task]').forEach((s) => s.addEventListener('change', showAssign))
+}
+function collect() {
+  document.querySelectorAll('.agent').forEach((el) => {
+    const a = agentsCfg.agents[el.dataset.id]; if (!a) return
+    el.querySelectorAll('[data-k]').forEach((i) => { a[i.dataset.k] = i.value })
+  })
+  document.querySelectorAll('#assignList select[data-task]').forEach((s) => { agentsCfg.assign[s.dataset.task] = s.value })
+}
+$('#btnAddAgent').onclick = () => {
+  collect(); let i = 1; while (agentsCfg.agents['agent' + i]) i++
+  agentsCfg.agents['agent' + i] = { name: '新 agent ' + i, baseUrl: 'https://api.deepseek.com', model: 'deepseek-flash', keyEnv: '', priceIn: 1, priceOut: 2, keySource: '未配置', keyMask: '', usedBy: [] }
+  renderAgents()
+}
+$('#btnSaveAgents').onclick = async () => {
+  collect()
+  const agents = {}
+  for (const [id, a] of Object.entries(agentsCfg.agents)) agents[id] = { name: a.name, baseUrl: a.baseUrl, model: a.model, keyEnv: a.keyEnv, priceIn: a.priceIn, priceOut: a.priceOut, apiKey: a.apiKey || '', clearKey: !!a._clearKey }
+  try { agentsCfg = await api('/api/agents', { agents, assign: agentsCfg.assign }); renderAgents(); $('#agentsMsg').textContent = '✅ 已保存，立即生效（不用重启）' } catch (e) { $('#agentsMsg').innerHTML = `<span class="bad">保存失败（接口返回错误）：${esc(e.message)}。任务分配没有改成功，上面每个任务旁的「当前」仍是保存前的值。</span>` }
+}
+async function loadCalls() {
+  const list = await api('/api/calls')
+  $('#calls').innerHTML = list.length ? `<table><thead><tr><th>时间</th><th>任务</th><th>agent / 模型</th><th>结果</th></tr></thead><tbody>${list.map((c) => `<tr><td>${esc(new Date(c.at).toLocaleString('zh-CN'))}</td><td>${esc(c.task || '')}</td><td>${esc(c.agent || '')}<div class="muted">${esc(c.model || '')}</div></td><td>${c.ok ? `<span class="good">成功</span> ${c.ms ?? ''} ms${c.cost ? ' · ¥' + c.cost : ''}` : `<span class="bad">失败</span> ${esc(c.err || '返回为空')}`}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">还没有调用记录</p>'
+}
+$('#btnAgents').onclick = openAgents
+$('#btnBackA').onclick = () => { if (prevPage === 'bookPage' && cur.book) openBook(cur.book); else if (prevPage === 'chPage' && cur.n) openChapter(cur.n); else { show('home'); loadBooks() } }
+
+// ── 智能代理（Beta）──
+let agSeen = ''
+const AG_STATUS = { 'awaiting-approval': '等你确认', running: '运行中', paused: '已暂停', stopped: '已中止', interrupted: '被打断', done: '已完成', error: '出错停下' }
+async function refreshAgent() {
+  if ($('#bookPage').classList.contains('hide') || !cur.book) return
+  let a; try { a = await api('/api/agent') } catch { return }
+  const on = !!a.enabled, s = a.state || { status: 'idle' }
+  $('#agentBeta').checked = on; $('#agentBox').classList.toggle('hide', !on)
+  if (!on) return
+  const mine = s.bookId === cur.book
+  const active = s.status && s.status !== 'idle'
+  $('#agentSetup').classList.toggle('hide', active && mine && !['done', 'error'].includes(s.status))
+  $('#agentRun').classList.toggle('hide', !(active && mine))
+  if (active && !mine) { $('#agentSetup').classList.remove('hide'); $('#agentRun').classList.add('hide') }
+  if (!(active && mine)) return
+  $('#agPlan').textContent = `任务：${s.instruction}\n\n计划：\n${s.plan || '（无）'}`
+  $('#agStat').textContent = `状态：${AG_STATUS[s.status] || s.status} · 已走 ${s.steps || 0} 步 · 已写 ${s.wrote || 0}/${s.chapters} 章 · 已花 ¥${(+s.spent || 0).toFixed(3)} / 预算 ¥${s.budget}${s.note ? ' · ' + s.note : ''}${s.pauseRequested ? ' · 当前这一步做完就暂停' : ''}${s.stopRequested ? ' · 正在中止' : ''}`
+  $('#agLog').textContent = (s.log || []).slice().reverse().map((x) => `${new Date(x.at).toLocaleTimeString('zh-CN', { hour12: false })}  ${x.kind === 'ctl' ? '【你】' : x.kind === 'error' ? '【出错】' : x.kind === 'result' ? '【结果】' : ''}${x.text}`).join('\n')
+  const btns = { 'awaiting-approval': [['确认开始', 'agStart'], ['放弃这份计划', 'agDiscard', 1]], running: [['暂停（做完当前一步）', 'agPause'], ['立即中止', 'agStop', 1]], paused: [['继续', 'agResume'], ['放弃任务', 'agDiscard', 1]], stopped: [['继续', 'agResume'], ['放弃任务', 'agDiscard', 1]], interrupted: [['继续', 'agResume'], ['放弃任务', 'agDiscard', 1]], done: [['清除记录，开始新任务', 'agDiscard']], error: [['继续', 'agResume'], ['清除记录', 'agDiscard', 1]] }[s.status] || []
+  const key = s.status + '|' + btns.length; if (key !== $('#agBtns').dataset.k) { $('#agBtns').dataset.k = key; $('#agBtns').innerHTML = btns.map(([t, id, g]) => `<button class="${g ? 'ghost' : ''}" data-ag="${id}">${t}</button>`).join(''); $('#agBtns').querySelectorAll('button').forEach((x) => x.onclick = () => agAct(x.dataset.ag)) }
+  // 代理写完章：页面上的章节表要跟着变（只在「写正文」页刷新，避免打断别的面板里的输入）
+  const sig = `${s.wrote}|${s.steps}|${s.status}`
+  if (sig !== agSeen) { const first = !agSeen; agSeen = sig; if (!first && cur.panel === 'pWrite') openBook(cur.book, 'pWrite') }
+}
+async function agAct(id) {
+  if (id === 'agStart') return tryApi('/api/agent/start', { instruction: $('#agIns').value })
+  if (id === 'agResume') return tryApi('/api/agent/resume', {})
+  if (id === 'agPause') return tryApi('/api/agent/pause', {}).then(refreshAgent)
+  if (id === 'agStop') { if (!confirm('立即中止会掐断正在进行的这一步（这一步花的钱不会退）。已写好的章节和草稿都保留。确定中止吗？')) return; return tryApi('/api/agent/stop', {}).then(refreshAgent) }
+  if (id === 'agDiscard') { await tryApi('/api/agent/discard', {}); agSeen = ''; $('#agBtns').dataset.k = ''; return refreshAgent() }
+}
+$('#agentBeta').onchange = async () => { const r = await tryApi('/api/settings', { agentBeta: $('#agentBeta').checked }); if (r) settings = r; refreshAgent() }
+$('#btnAgPlan').onclick = () => tryApi('/api/agent/plan', { id: cur.book, instruction: $('#agIns').value, chapters: $('#agCh').value, budget: $('#agBudget').value, allowPackage: $('#agPack').checked, allowCover: $('#agCover').checked })
+$('#btnAgGuide').onclick = async () => { const t = $('#agGuide').value.trim(); if (!t) return; const r = await tryApi('/api/agent/guide', { text: t }); if (r) { $('#agGuide').value = ''; refreshAgent() } }
+setInterval(refreshAgent, 2500)
+// 书名字数（番茄上限 15 个字，含标点）
+const titleCount = () => { const n = [...$('#fTitle').value].length; $('#titleLen').textContent = ` ${n}/15 字` + (n > 15 ? '，超限' : ''); $('#titleLen').style.color = n > 15 ? '#c0392b' : '' }
+$('#fTitle').addEventListener('input', titleCount)
+
+// ══════════ 录制模式（recording mode）══════════
+// 用途：录宣传视频时隐藏敏感信息（模型名/供应商名/余额/花费）。
+// 进入方式：URL 带 ?rec=1，或 localStorage.recMode === '1'（进页面时两者任一成立即开启，并写回 localStorage）。
+// 退出方式：URL 带 ?rec=0（会清掉 localStorage.recMode）。
+// 只改前端显示层：不碰任何接口、请求体、按钮逻辑与数据。
+// ⚠ 行首分号不可删：上一行以 `)` 结尾且无分号时，下面的 IIFE 会被当成对它返回值的调用而抛错，后续脚本（loadBooks/poll）全部不执行（2026-10-02 事故）。
+;(function recMode() {
+  const REC_KEY = 'recMode'
+  const REC_MASK = '（已隐藏）'          // 模型名/供应商名统一替换成这个
+  // 关键词表（大小写不敏感，按词边界匹配，避免误伤普通中文/英文单词）
+  const REC_WORDS = ['deepseek', 'deeofficial', 'gpt', 'claude', 'grok', 'mimo', 'qwen', 'glm',
+    'kimi', 'custom', 'lingsuan', 'openai', 'anthropic', 'minimax', 'gemini', 'llama',
+    'mistral', 'ollama', 'azure', 'hetune', 'sonnet', 'opus', 'flash', 'astra', '4\\.1']
+  // 前边界：行首或非英文字母数字下划线；后边界：后面不能再跟英文字母（数字/`-`/`.` 允许，才能连 Qwen3.7、gpt-6-astra 一起吃掉）
+  const REC_RE = new RegExp('(?:^|[^A-Za-z0-9_])(?:' + REC_WORDS.join('|') + ')(?![a-z])', 'gi')
+  const mask = (s) => String(s).replace(REC_RE, (m) => (m.match(/^[^A-Za-z0-9_]/) ? m[0] : '') + REC_MASK)
+
+  const params = new URLSearchParams(location.search)
+  let on = params.get('rec') === '1' || localStorage.getItem(REC_KEY) === '1'
+  if (params.get('rec') === '0') { on = false; localStorage.setItem(REC_KEY, '0') }
+  else if (on) localStorage.setItem(REC_KEY, '1')
+  if (!on) return
+
+  document.documentElement.setAttribute('data-rec', '1')
+  const style = document.createElement('style')
+  style.textContent = `[data-rec="1"] #btnAgents,[data-rec="1"] #agentsPage,[data-rec="1"] #spent{display:none!important}`
+  document.head.appendChild(style)
+
+  // 这里集中登记所有名字/金额类节点，MutationObserver 会对新增内容持续替换
+  function recSweep(root) {
+    if (!root) return
+    // 1) 明确的金额/花费节点：整块换成占位
+    for (const sel of ['#spent', '#bookStat', '#agStat', '#polishNote', '#coverInfo', '#exportPreview', '#homeStat', '#tierBox']) {
+      const el = root.querySelector ? root.querySelector(sel) : null
+      if (el) el.setAttribute('data-rec-money', '1')
+    }
+    document.querySelectorAll('[data-rec-money]').forEach((el) => {
+      if (el.textContent !== '—') el.textContent = '—'
+    })
+    // 2) 文本节点里出现模型/供应商名 → 替换
+    const walker = document.createTreeWalker(root.nodeType === 1 ? root : document.body, NodeFilter.SHOW_TEXT)
+    let n
+    while ((n = walker.nextNode())) {
+      if (n.parentElement && n.parentElement.closest('script,style')) continue
+      const masked = mask(n.nodeValue)
+      if (masked !== n.nodeValue) n.nodeValue = masked
+    }
+    // 3) 可控但常含模型名的容器：整体走一遍掩码
+    document.querySelectorAll('option,input,textarea').forEach((el) => {
+      if (el.value && mask(el.value) !== el.value) el.value = mask(el.value)
+    })
+  }
+
+  const obs = new MutationObserver((muts) => {
+    for (const m of muts) {
+      if (m.type === 'characterData') { const v = mask(m.target.nodeValue); if (v !== m.target.nodeValue) m.target.nodeValue = v }
+      else for (const node of m.addedNodes) if (node.nodeType === 1) recSweep(node)
+      else if (node.nodeType === 3) { const v = mask(node.nodeValue); if (v !== node.nodeValue) node.nodeValue = v }
+    }
+  })
+  const start = () => {
+    recSweep(document.body)
+    obs.observe(document.body, { childList: true, subtree: true, characterData: true })
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start)
+  else start()
+  window.__recMode = { on: true, mask: REC_MASK, words: REC_WORDS, sweep: recSweep }  // 供 test-recmode.mjs / 人工核对
+})()
+// ══════════ 录制模式 结束 ══════════
+
+// ══════════ 简单模式 + 手指引导（2026-10-02）══════════
+// 简单模式（默认）：只留最常用的按钮，高级设置（人物卡、版本数、润色器、智能代理、模型配置）收起来。
+// 手指引导：根据当前页面状态，用会动的手指指向「下一步该点的按钮」，并配一句大白话。
+;(function simpleAndCoach() {
+  const MODE_KEY = 'qp-mode', COACH_KEY = 'qp-coach-off'
+  const applyMode = () => {
+    const simple = localStorage.getItem(MODE_KEY) !== 'pro'
+    document.body.classList.toggle('simple', simple)
+    const b = document.getElementById('btnMode')
+    // 按钮上写「点了会发生什么」，不写当前状态：内测用户把「简单模式」读成标签，不知道能点（2026-10-02）
+    b.textContent = simple ? '切换到专业模式 ▸' : '◂ 切换回简单模式'
+    b.setAttribute('aria-label', simple ? '当前是简单模式，点击切换到专业模式（显示全部设置）' : '当前是专业模式，点击切换回简单模式')
+  }
+  document.getElementById('btnMode').onclick = () => { localStorage.setItem(MODE_KEY, document.body.classList.contains('simple') ? 'pro' : 'simple'); applyMode() }
+  applyMode()
+
+  const finger = document.createElement('div'); finger.id = 'coachFinger'; finger.textContent = '👆'; finger.setAttribute('aria-hidden', 'true')
+  const bubble = document.createElement('div'); bubble.id = 'coachBubble'; bubble.setAttribute('role', 'status')
+  finger.style.display = bubble.style.display = 'none'
+  document.body.append(finger, bubble)
+  let lastKey = '', lastTarget = null
+  const visible = (el) => !!el && el.offsetParent !== null && !el.disabled
+  const pageOn = (id) => !document.getElementById(id).classList.contains('hide')
+  // 返回 [目标元素, 提示文字, 步骤键]；按「当前最该做的一件事」排序
+  function nextStep() {
+    if (!document.getElementById('busy').classList.contains('hide') && /⏳/.test(document.getElementById('busy').textContent)) return null // 正在跑任务：别打扰
+    if (pageOn('home')) {
+      const pick = document.querySelector('.pickConcept')
+      if (visible(pick)) return [pick, '挑一个你喜欢的方案，点「就写这本」', 'pick']
+      const open = document.querySelector('#books button')
+      if (visible(open) && !document.getElementById('idea').value.trim()) return [open, '你已经有书了：点「打开」接着写。想开新书就在上面写一句想法', 'open']
+      const sb = document.getElementById('styleBlock')
+      if (!window._styleTouched && !document.getElementById('idea').value.trim() && visible(sb)) return [sb, '先选一个你想写的风格（不选就默认都市脑洞），再往下写一句想法', 'style']
+      return [document.getElementById('btnConcepts'), '先在上面写一句你想写的故事（不写也行），然后点这里，AI 帮你出 3 个方案', 'concepts']
+    }
+    if (pageOn('bookPage')) {
+      if (cur.panel !== 'pWrite') return [document.querySelector('#steps button[data-p="pWrite"]'), '点「写正文」回到写作页', 'gowrite']
+      const chBtn = document.querySelector('#chapters button[data-n]')
+      if (!chBtn) return [document.getElementById('btnWrite1'), '点这里，AI 帮你写第一章（2–4 分钟）', 'write1']
+      if (!sessionStorage.getItem('qp-coach-opened')) return [chBtn, '写好了！点这里看正文', 'opench']
+      return [document.getElementById('btnWrite1'), '继续点这里写下一章。写够了去上面「导出上传番茄」下载', 'writenext']
+    }
+    if (pageOn('chPage')) {
+      sessionStorage.setItem('qp-coach-opened', '1')
+      const settleBtn = document.getElementById('btnSettleKeep') || document.getElementById('btnSettleAdopt')
+      if (visible(settleBtn)) return [settleBtn, settleBtn.id === 'btnSettleKeep' ? '两版差不多，别再改了：点这里保留原稿，直接写下一章' : '改后更好：点这里采用并写下一章', 'settle']
+      return [document.getElementById('btnWriteNext'), '读完满意就点「写下一章」；想改就在下面框里写意见，点「按我的想法改这一章」', 'chnext']
+    }
+    return null
+  }
+  function hide() { finger.style.display = bubble.style.display = 'none'; lastTarget?.classList.remove('coach-target'); lastTarget = null }
+  function tick() {
+    if (localStorage.getItem(COACH_KEY) === '1') return hide()
+    const s = nextStep()
+    if (!s || !visible(s[0])) return hide()
+    const [el, text, key] = s
+    if (el !== lastTarget) { lastTarget?.classList.remove('coach-target'); el.classList.add('coach-target'); lastTarget = el }
+    if (key !== lastKey) {
+      lastKey = key
+      bubble.innerHTML = ''; bubble.append(text)
+      const off = document.createElement('a'); off.textContent = '不用引导了'; off.tabIndex = 0
+      off.onclick = off.onkeydown = (e) => { if (e.type === 'keydown' && e.key !== 'Enter') return; localStorage.setItem(COACH_KEY, '1'); hide() }
+      bubble.append(off)
+      const r0 = el.getBoundingClientRect()
+      if (r0.top < 0 || r0.bottom > innerHeight) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+    const r = el.getBoundingClientRect()
+    if (r.bottom < 0 || r.top > innerHeight) { finger.style.display = bubble.style.display = 'none'; return }
+    finger.style.display = bubble.style.display = ''
+    finger.style.left = Math.min(innerWidth - 56, r.left + r.width / 2 - 14) + 'px'
+    finger.style.top = (r.bottom - 4) + 'px'
+    const bw = Math.min(300, innerWidth - 16)
+    bubble.style.left = Math.max(8, Math.min(innerWidth - bw - 8, r.left + r.width / 2 - bw / 2)) + 'px'
+    const below = r.bottom + 52
+    bubble.style.top = (below + 80 < innerHeight ? below : Math.max(8, r.top - 90)) + 'px'
+  }
+  document.getElementById('btnCoach').onclick = () => { localStorage.removeItem(COACH_KEY); sessionStorage.removeItem('qp-coach-opened'); lastKey = ''; tick() }
+  setInterval(tick, 600); addEventListener('scroll', tick, { passive: true }); addEventListener('resize', tick)
+  window.__coach = { nextStep, tick }
+})()
+// ══════════ 简单模式 + 手指引导 结束 ══════════
+
+// ══════════ 创意工具箱（清单来自 GET /api/tools；首页 = 不绑定书，书页 = 自动带入本书资料）══════════
+let toolDefs = null, toolReq = null
+const TB = { home: { root: '#thRoot', bound: false, tool: '', vals: {}, out: {}, msg: '' }, book: { root: '#tbRoot', bound: true, tool: '', vals: {}, out: {}, msg: '', bookId: '' } }
+async function loadToolDefs() { if (!toolDefs) toolDefs = (await api('/api/tools')).tools || []; return toolDefs }
+async function tbShow(k) {
+  const s = TB[k]
+  if (k === 'book' && s.bookId !== cur.book) { s.bookId = cur.book; s.out = {}; s.msg = '' } // 换了一本书：上一本的结果不带过来
+  try { await loadToolDefs() } catch (e) { $(s.root).innerHTML = `<p class="bad">工具清单加载失败：${esc(e.message)}</p>`; return }
+  tbRender(k)
+}
+function tbCollect(k) {
+  const s = TB[k]; const def = (toolDefs || []).find((t) => t.id === s.tool); if (!def) return
+  const v = {}; def.inputs.forEach((i) => { const el = document.getElementById(`tb-${k}-${i.key}`); if (el) v[i.key] = el.value }); s.vals[def.id] = v
+}
+function tbSetMsg(k) { const el = document.getElementById(`tb-${k}-msg`); if (el) el.textContent = TB[k].msg || '' }
+function tbRender(k) {
+  const s = TB[k], root = $(s.root); if (!root || !toolDefs) return
+  const def = toolDefs.find((t) => t.id === s.tool)
+  const chips = toolDefs.map((t) => `<button type="button" class="small ${t.id === s.tool ? '' : 'ghost'}" data-tool="${esc(t.id)}" title="${esc(t.desc)}">${esc(t.icon || '')} ${esc(t.label)}</button>`).join(' ')
+  let body = '<p class="muted">👆 先点上面的一个工具</p>'
+  if (def) {
+    const v = s.vals[def.id] || {}
+    const fields = def.inputs.map((i) => {
+      const id = `tb-${k}-${i.key}`, lab = `<label for="${id}" class="muted" style="display:block;margin-top:8px">${esc(i.label)}</label>`
+      if (i.type === 'select') return lab + `<select id="${id}">${(i.options || []).map((o) => `<option ${v[i.key] === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>`
+      return lab + (i.rows > 1 ? `<textarea id="${id}" rows="${i.rows}" maxlength="800" placeholder="${esc(i.placeholder)}">${esc(v[i.key] || '')}</textarea>` : `<input type="text" id="${id}" maxlength="300" placeholder="${esc(i.placeholder)}" value="${esc(v[i.key] || '')}" style="width:100%;box-sizing:border-box">`)
+    }).join('')
+    const o = s.out[def.id]
+    let res = ''
+    if (o) {
+      const canApply = s.bound && !!cur.book
+      if (o.titles?.length) {
+        res = `<h3>结果（点「用到本书包装」直接改书名）</h3>` + o.titles.map((t, i) => `<div class="tcand"><div style="flex:1"><b>${esc(t)}</b> <span class="muted">${[...t].length} 字</span></div><button type="button" class="small ghost tbCopy" data-v="${esc(t)}">复制</button>${canApply ? `<button type="button" class="small tbApply" data-f="title" data-v="${esc(t)}">用到本书包装</button>` : ''}</div>`).join('')
+        if (o.dropped?.length) res += `<p class="muted">另有 ${o.dropped.length} 个超过 15 字（番茄放不下），已自动过滤。</p>`
+        res += `<div class="row" style="margin-top:6px"><button type="button" class="small ghost tbCopy" data-v="${esc(o.text)}">复制全部</button></div>`
+      } else {
+        res = `<h3>结果</h3><pre class="box" style="font-size:16px;line-height:1.8">${esc(o.text)}</pre><div class="row"><button type="button" class="small tbCopy" data-v="${esc(o.text)}">复制</button>${canApply && def.apply === 'intro' ? `<button type="button" class="small ghost tbApply" data-f="intro" data-v="${esc(o.text)}">用到本书包装</button>` : ''}<span class="muted">不满意就再点一次「生成」</span></div>`
+      }
+    }
+    body = `<div class="feature-help" style="margin:4px 0"><b>${esc(def.label)}：</b><span>${esc(def.desc)}</span></div>${fields}
+      <div class="row" style="margin-top:12px"><button type="button" class="big" id="tb-${k}-go" data-job>生成</button><span class="muted">${s.bound ? '已自动带入本书的风格、设定集和最近两章前情' : '没有绑定书：只用你填的内容。想让它参考某本书，进书页点「🧰 创意工具箱」'}</span></div>
+      <p id="tb-${k}-msg" class="muted" role="status" style="margin:8px 0 0">${esc(s.msg || '')}</p>${res}`
+  }
+  root.innerHTML = `<div class="row" style="gap:6px">${chips}</div><div style="margin-top:10px">${body}</div>`
+  root.querySelectorAll('[data-tool]').forEach((b) => b.onclick = () => { tbCollect(k); s.tool = b.dataset.tool; s.msg = ''; tbRender(k) })
+  root.querySelectorAll('.tbCopy').forEach((b) => b.onclick = () => copyText(b.dataset.v).then((ok) => { s.msg = ok ? '✅ 已复制' : '复制失败，请手动选中文字复制'; tbSetMsg(k) }))
+  root.querySelectorAll('.tbApply').forEach((b) => b.onclick = () => tbApply(k, b.dataset.f, b.dataset.v))
+  const go = document.getElementById(`tb-${k}-go`); if (go) go.onclick = () => tbGo(k)
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true } catch { /* 走下面的兜底 */ }
+  try { const ta = document.createElement('textarea'); ta.value = t; ta.style.cssText = 'position:fixed;left:-999px;top:0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok } catch { return false }
+}
+async function tbGo(k) {
+  const s = TB[k]; tbCollect(k); if (!s.tool) return
+  if (s.bound && !cur.book) return
+  toolReq = { k, tool: s.tool }
+  s.msg = '⏳ 已提交，生成中（约 10~40 秒），结果会出现在下面…'; tbSetMsg(k)
+  const r = await tryApi('/api/tool', { id: s.bound ? cur.book : '', tool: s.tool, inputs: s.vals[s.tool] || {} })
+  if (!r) { toolReq = null; s.msg = ''; tbSetMsg(k) }
+}
+async function tbApply(k, field, value) {
+  const s = TB[k]; if (!cur.book) return
+  try {
+    const r = await api('/api/package/apply', { id: cur.book, [field]: value })
+    s.msg = field === 'title' ? `✅ 书名已改成《${r.title}》（简介、封面提示词没动）` : '✅ 简介已更新（书名没动）'
+    await openBook(cur.book, 'pTools') // 刷新「书名·简介·封面」里的输入框，结果区保留
+  } catch (e) { s.msg = '❌ ' + e.message; tbSetMsg(k) }
+}
+function handleToolJob(j) {
+  const q = toolReq; toolReq = null; if (!q) return
+  const s = TB[q.k]
+  if (j.error) s.msg = '❌ ' + j.error
+  else if (j.result?.text) { s.out[q.tool] = j.result; s.msg = '✅ ' + (j.result.summary || '生成好了') }
+  if (toolDefs) tbRender(q.k)
+}
+$('#toolsHomeCard details').addEventListener('toggle', (e) => { if (e.target.open) tbShow('home') })
+
+// ══════════ 章节页划选 AI 动作（扩写/缩写/改写/润色/纠错/续写）══════════
+// 流程：选中正文 → 点按钮 → 后台生成 → 对比框 → 「替换到正文」（校验原段仍唯一存在 → /api/save → 读回核对）
+let selState = null, selReq = null, selRes = null
+const SEL_LABEL = { expand: '扩写', shrink: '缩写', rewrite: '改写', polish: '润色', fix: '纠错', continue: '续写一段' }
+function selHint(text, bad) {
+  const el = $('#selHint'); if (!el) return
+  el.textContent = text || (cur.tab !== 'final' ? '划选工具只在「① 当前定稿」标签下可用，请先点上面的「① 当前定稿」' : selState?.text ? `已选中 ${selState.text.length} 字，点右边的按钮` : '先用鼠标选中一段正文，再点右边的按钮')
+  el.classList.toggle('bad', !!bad)
+}
+function selReset() { selState = null; selRes = null; const b = $('#selBox'); if (b) { b.classList.add('hide'); b.innerHTML = '' } selHint() }
+function selCapture() {
+  const sel = getSelection(), ct = $('#chText'); if (!sel || !sel.rangeCount || !ct) return
+  const r = sel.getRangeAt(0); if (!ct.contains(r.startContainer) || !ct.contains(r.endContainer)) return // 选区在别处（比如点了按钮）：保留上一次
+  if (sel.isCollapsed) { selState = null; selHint(); return }
+  const pre = document.createRange(); pre.selectNodeContents(ct); pre.setEnd(r.startContainer, r.startOffset)
+  selState = { start: pre.toString().length, text: r.toString() }; selHint()
+}
+document.addEventListener('selectionchange', selCapture)
+function selPayload(action) {
+  if (cur.tab !== 'final') { selHint('只能在「① 当前定稿」标签下用，请先点上面的「① 当前定稿」', true); return null }
+  if ($('#chText').isContentEditable) { selHint('你正在手改正文：先点「保存我的修改」，再用划选工具', true); return null }
+  if (!selState || !selState.text.trim()) { selHint('先用鼠标选中一段正文，再点按钮', true); return null }
+  if (selState.text.length > 3000) { selHint(`选的太多了（${selState.text.length} 字），一次最多 3000 字，请分段选`, true); return null }
+  const full = $('#chText').textContent; let start = selState.start
+  if (full.substr(start, selState.text.length) !== selState.text) { start = full.indexOf(selState.text); if (start < 0) { selHint('选区和正文对不上了，请重新选中', true); return null } }
+  return { id: cur.book, n: cur.n, action, text: selState.text, before: full.slice(Math.max(0, start - 600), start), after: full.slice(start + selState.text.length, start + selState.text.length + 600), ask: $('#selAsk').value.trim() }
+}
+async function selGo(action, again) {
+  const p = again ? { ...selRes.req, action, ask: $('#selAsk').value.trim() } : selPayload(action); if (!p) return
+  selReq = p
+  const box = $('#selBox'); box.classList.remove('hide'); box.textContent = `⏳ ${SEL_LABEL[action]}中（约 10~40 秒），结果会出现在这里…`
+  const r = await tryApi('/api/selection', p)
+  if (!r) { selReq = null; box.classList.add('hide'); box.textContent = '' }
+}
+function selRender(msg) {
+  const box = $('#selBox'), q = selRes; if (!q) { box.classList.add('hide'); return }
+  const cont = q.req.action === 'continue'
+  box.classList.remove('hide')
+  box.innerHTML = `<b>${esc(SEL_LABEL[q.req.action])}结果</b> <span class="muted">（还没改正文，满意再点「${cont ? '接在原文后面' : '替换到正文'}」）</span>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:8px">
+      <div><div class="muted">原文（${q.req.text.length} 字）</div><pre class="box" style="max-height:40vh;overflow:auto">${esc(q.req.text)}</pre></div>
+      <div><div class="muted">${cont ? '续写内容' : '新文'}（${q.result.length} 字）</div><pre class="box" style="max-height:40vh;overflow:auto;border-color:var(--pri)">${esc(q.result)}</pre></div>
+    </div>
+    <div class="row" style="margin-top:8px"><button type="button" id="selOk">${cont ? '接在原文后面' : '替换到正文'}</button><button type="button" class="ghost" id="selAgain" data-job>再来一次</button><button type="button" class="ghost" id="selDrop">放弃</button><span id="selMsg" class="muted" role="status">${esc(msg || '替换后会存成一个新版本，旧版本在页面下方可以恢复')}</span></div>`
+  $('#selOk').onclick = selReplace; $('#selAgain').onclick = () => selGo(q.req.action, true); $('#selDrop').onclick = selReset
+}
+function selSay(t, bad) { const m = $('#selMsg'); if (m) { m.textContent = t; m.classList.toggle('bad', !!bad) } }
+async function selReplace() {
+  const q = selRes; if (!q) return
+  if (cur.tab !== 'final' || $('#chText').isContentEditable) return selSay('请回到「① 当前定稿」且不要在手改状态下替换', true)
+  if (q.req.id !== cur.book || q.req.n !== cur.n) return selSay('这不是当前这一章的结果，请重新选中', true)
+  let fresh; try { fresh = await api(`/api/chapter?id=${encodeURIComponent(cur.book)}&n=${cur.n}`) } catch (e) { return selSay('读取正文失败：' + e.message, true) }
+  const full = fresh.text
+  // 校验 1：服务器上的定稿必须还是页面上显示的这一版，否则可能覆盖掉别处的改动
+  if (full !== $('#chText').textContent) return selSay('正文已变化（可能刚被改写或恢复过），请刷新本页后重新选中', true)
+  // 校验 2：原段必须还在正文里，且只出现一次（出现多次就没法确定替换哪一处）
+  const at = full.indexOf(q.req.text)
+  if (at < 0) return selSay('正文已变化，请重新选中', true)
+  if (full.indexOf(q.req.text, at + 1) >= 0) return selSay('这一段在正文里出现了多次，没法确定替换哪一处：请多选几句（选得更长一点）再试', true)
+  const sep = /\n$/.test(q.req.text) ? '\n' : '\n\n'
+  const piece = q.req.action === 'continue' ? q.req.text + sep + q.result : q.result
+  const next = full.slice(0, at) + piece + full.slice(at + q.req.text.length)
+  if (!confirm(`${q.req.action === 'continue' ? '把续写内容接在原文后面' : '用新文替换原文'}？\n旧版本会存进历史，可以随时恢复。`)) return
+  try { await api('/api/save', { id: cur.book, n: cur.n, text: next }) } catch (e) { return selSay('保存失败：' + e.message, true) }
+  // 校验 3：保存后重新读回，确认新段落真的在正文里
+  let back; try { back = await api(`/api/chapter?id=${encodeURIComponent(cur.book)}&n=${cur.n}`) } catch (e) { return selSay('保存后读回失败：' + e.message, true) }
+  if (!back.text.includes(piece)) return selSay('⚠ 保存后读回核对失败：新段落不在正文里，请打开下方旧版本检查或恢复', true)
+  const n = cur.n; selReset(); await openChapter(n, 'final')
+  $('#chWhich').textContent = `✅ 已${q.req.action === 'continue' ? '接上续写内容' : '替换'}并保存（读回核对通过）。旧版本在页面最下方「旧版本」里，可以一键恢复。评审分数是旧的，需要的话点「重做评审报告」。`
+}
+document.querySelectorAll('.selBtn').forEach((b) => b.onclick = () => selGo(b.dataset.sel))
+function handleSelJob(j) {
+  const q = selReq; selReq = null; if (!q) return
+  if (q.id !== cur.book || q.n !== cur.n) return
+  const box = $('#selBox')
+  if (j.error) { selRes = null; box.classList.remove('hide'); box.innerHTML = `<p class="bad" style="margin:0">❌ ${esc(j.error)}</p><div class="row" style="margin-top:8px"><button type="button" class="ghost" id="selDrop2">关闭</button></div>`; $('#selDrop2').onclick = selReset; return }
+  if (j.result?.result) { selRes = { req: q, result: j.result.result }; selRender() }
+}
+
+loadBooks(); loadStyles(); poll(); restorePlace()
+</script>
+</body>
+</html>

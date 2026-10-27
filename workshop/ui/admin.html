@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>清平文坊 · 管理后台</title>
+<style>
+  :root { --c:#2563eb; --bd:#d6dbe3; --bg:#f6f7f9; --mut:#667085; --ok:#067647; --bad:#b42318 }
+  * { box-sizing: border-box }
+  body { font-family: system-ui, "Microsoft YaHei", sans-serif; margin: 0; background: var(--bg); color: #1d2433; font-size: 15px }
+  header { background: #fff; border-bottom: 1px solid var(--bd); padding: 14px 20px; display: flex; gap: 12px; align-items: center; position: sticky; top: 0; z-index: 5 }
+  header h1 { font-size: 18px; margin: 0; flex: 1 }
+  main { max-width: 1080px; margin: 0 auto; padding: 16px 20px 80px }
+  section { background: #fff; border: 1px solid var(--bd); border-radius: 10px; padding: 16px; margin-bottom: 18px }
+  h2 { font-size: 16px; margin: 0 0 4px } .hint { color: var(--mut); font-size: 13px; margin: 0 0 12px }
+  .card { border: 1px solid var(--bd); border-radius: 8px; padding: 12px; margin-bottom: 12px }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px 14px }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--mut) }
+  label.inline { flex-direction: row; align-items: center; gap: 6px; color: #1d2433 }
+  input, select, textarea { font: inherit; padding: 7px 9px; border: 1px solid var(--bd); border-radius: 6px; background: #fff; color: #1d2433; min-height: 36px }
+  input:focus, select:focus, button:focus-visible { outline: 2px solid var(--c); outline-offset: 1px }
+  button { font: inherit; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--bd); background: #fff; cursor: pointer; min-height: 36px }
+  button.primary { background: var(--c); color: #fff; border-color: var(--c) }
+  button.danger { color: var(--bad) }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px }
+  .msg { font-size: 13px } .msg.ok { color: var(--ok) } .msg.bad { color: var(--bad) }
+  .tag { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: #eef2ff; color: #3538cd }
+  table { width: 100%; border-collapse: collapse; font-size: 14px }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eef0f3; vertical-align: middle }
+  th { color: var(--mut); font-weight: 500 }
+  td select { width: 100% }
+  .grp { color: var(--mut); font-size: 12px }
+  pre { white-space: pre-wrap; background: var(--bg); padding: 10px; border-radius: 6px; font-size: 13px }
+  .sr { position: absolute; left: -9999px }
+  .tabs { display:flex; gap:4px; padding:0 20px; background:#fff; border-bottom:1px solid var(--bd); position:sticky; top:63px; z-index:4 }
+  .tabs button { border:0; border-bottom:3px solid transparent; border-radius:0; background:none; padding:10px 14px; min-height:40px }
+  .tabs button[aria-selected=true] { border-bottom-color: var(--c); color: var(--c); font-weight:600 }
+  .pane[hidden] { display:none }
+  .st-正常 { color:var(--ok) } .st-已停用,.st-已到期,.st-额度用完 { color:var(--bad) }
+  .acc .big { font-size:18px; font-weight:600 } .acc .url { word-break:break-all; font-size:13px }
+  .bar { height:8px; background:#eef0f3; border-radius:4px; overflow:hidden; margin:6px 0 } .bar i { display:block; height:100%; background:var(--c) }
+  .mini { min-height:30px; padding:3px 10px; font-size:13px } input.short { width:110px }
+  .badge { display:inline-block; min-width:20px; padding:0 6px; border-radius:99px; background:var(--bad); color:#fff; font-size:12px; line-height:20px; text-align:center }
+  .fb { border:1px solid var(--bd); border-left:5px solid var(--bd); border-radius:8px; padding:12px 14px; margin-bottom:12px }
+  .fb.open { border-left-color:var(--bad); background:#fff7f6 } .fb.fixed { border-left-color:var(--ok) } .fb.rejected { border-left-color:var(--mut) }
+  .fb .say { font-size:16px; margin:6px 0; white-space:pre-wrap } .fb .meta { color:var(--mut); font-size:13px } .fb .note { font-size:13px; margin-top:6px; padding:6px 8px; background:var(--bg); border-radius:6px }
+  .q-open { color:var(--bad); font-weight:600 } .q-fixed { color:var(--ok); font-weight:600 } .q-rejected, .q-none { color:var(--mut) }
+</style>
+</head>
+<body>
+<header>
+  <h1>清平文坊 · 管理后台</h1>
+  <span id="dirty" class="msg" aria-live="polite"></span>
+  <button class="primary" id="saveBtn" onclick="saveAll()" hidden>保存档位与模型（立即生效）</button>
+</header>
+<nav class="tabs" role="tablist" id="tabs"><button role="tab" data-tab="fb" aria-selected="false">真人反馈 <span id="fbBadge" class="badge" hidden></span></button><button role="tab" data-tab="acc" aria-selected="true">账号与额度</button><button role="tab" data-tab="tier" aria-selected="false">用户档位与模型</button><button role="tab" data-tab="own" aria-selected="false">我自己的模型分工</button><button role="tab" data-tab="use" aria-selected="false">用量与反馈</button><button role="tab" data-tab="lab" aria-selected="false">DeepSeek 作者与测试</button></nav>
+<main>
+  <p id="status" class="msg" role="status" aria-live="polite">读取中…</p>
+
+  <div class="pane" id="pane-tier" hidden>
+  <section aria-labelledby="h-models">
+    <h2 id="h-models">① 模型清单</h2>
+    <p class="hint">每个模型填好「协议 + Base URL + 模型名称 + API Key」。Key 只存在本机管理员配置里，用户界面永远看不到。Key 留空 = 保留原来的；也可以只填环境变量名（Key 写在 projects/.env 里）。填完先点「测试」，花费不到 1 分钱。</p>
+    <div id="models"></div>
+    <button onclick="addModel()">＋ 新增模型</button>
+  </section>
+
+  <section aria-labelledby="h-tiers">
+    <h2 id="h-tiers">② 档位 → 模型</h2>
+    <p class="hint">每个档位先选「基础模型」（没单独指定的环节都用它），再按需要给某些环节单独指定模型。单独指定的模型调用失败时，会自动退回基础模型，用户不会卡住。</p>
+    <div id="tiers"></div>
+  </section>
+
+  </div>
+  <div class="pane" id="pane-fb" hidden>
+  <section aria-labelledby="h-fb">
+    <h2 id="h-fb">真人用户反馈（最优先处理）</h2>
+    <p class="hint">用户在网页里点「反馈」提交的原话都在这里，最新在前。每条会自动进入修复队列，排在 AI 模拟反馈前面，用户一提交就会唤醒修复工程师（模型在「我自己的模型分工」里选）。</p>
+    <div class="card" id="fixerBox" aria-live="polite">正在读取修复工程师状态…</div>
+    <div class="row" style="margin:0 0 12px"><button class="primary" id="wakeBtn">立即唤醒修复工程师</button><button id="fbReload">刷新</button><span id="wakeMsg" class="msg" aria-live="polite"></span></div>
+    <div id="fbList" aria-live="polite"></div>
+  </section>
+  </div>
+  <div class="pane" id="pane-use" hidden>
+  <section aria-labelledby="h-usage">
+    <h2 id="h-usage">③ 用户用量 与 反馈</h2>
+    <div class="row">
+      <label style="flex:1">用户沙箱目录<input id="dir" placeholder="例如 workshop\deploy\users\<账号名>"></label>
+      <button onclick="usage()">查询用量</button>
+      <button onclick="feedback()">查看反馈</button>
+    </div>
+    <pre id="out" aria-live="polite"></pre>
+  </section>
+  </div>
+  <div class="pane" id="pane-acc"><section aria-labelledby="h-acc"><h2 id="h-acc">内测账号</h2><p class="hint">每个账号 = 一个隔离沙箱 + 一个专属网址。代号只给你自己认人用，用户看不到。加额度、延期、停用都是实时生效，不用重启。</p><div id="tunnelBar" class="row" style="margin:0 0 12px"></div><div id="accounts"></div><h2 style="margin-top:18px">新开一个账号</h2><div class="grid"><label>代号（留空自动 K001…）<input id="n-code" maxlength="20" placeholder="例如 小李、A组-3"></label><label>备注（用户称呼，可空）<input id="n-label" maxlength="40"></label><label>体验额度（元）<input id="n-budget" type="number" min="0.01" step="0.01" value="3"></label><label>有效期（天）<input id="n-days" type="number" min="1" step="1" value="7"></label></div><div class="row"><button class="primary" id="createBtn">创建账号并开通网址</button><span id="createMsg" class="msg" aria-live="polite"></span></div></section></div>
+  <div class="pane" id="pane-lab" hidden><p id="labMsg" class="hint" aria-live="polite">正在打开 DeepSeek 作者与测试工作台…</p><iframe id="labFrame" title="DeepSeek 作者与测试工作台" style="width:100%;height:calc(100vh - 150px);min-height:640px;border:1px solid #d6dde0;border-radius:6px;background:#fff" hidden></iframe></div>
+  <div class="pane" id="pane-own" hidden><section><h2>我自己的模型清单</h2><p class="hint">这是你自己用「打开清平文坊」写书时的模型与分工（和用户档位是两套）。每个任务环节分给哪个模型都在这里改。保存写入 workshop/data/agents.json，你自己那边的工坊下次调用就生效。</p><div id="agents"></div><button id="addAgentBtn">＋ 新增模型</button></section><section><h2>任务分工（每个环节用哪个模型）</h2><div id="assign"></div><label for="engineerAgent">反馈修复工程师模型<select id="engineerAgent"></select></label><p class="hint">DeepSeek 发现的问题点击“发给 GPT 立即修”以及自动唤醒时使用此模型。修改后点击保存，下一次修复任务生效。</p><div class="row"><button class="primary" id="saveAgentsBtn">保存模型与分工</button><span id="agentsMsg" class="msg" aria-live="polite"></span></div></section></div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id)
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+let S = { models: {}, tiers: {}, tasks: [] }
+let dirty = false
+const markDirty = () => { dirty = true; $('dirty').textContent = '有改动还没保存'; $('dirty').className = 'msg bad' }
+window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = '' } })
+
+async function load() {
+  const r = await fetch('/api/admin/tiers'); const j = await r.json()
+  if (!r.ok) { $('status').textContent = j.error || '读取失败'; $('status').className = 'msg bad'; return }
+  S = j; render()
+  $('status').textContent = j.configured ? `已读取：${Object.keys(j.models).length} 个模型、${Object.keys(j.tiers).length} 个档位` : '⚠ 没有配置 WORKSHOP_ADMIN_CONFIG，保存会失败'
+  $('status').className = 'msg ' + (j.configured ? 'ok' : 'bad')
+}
+
+function modelCard(id, m) {
+  const p = (k) => `m-${id}-${k}`
+  return `<div class="card" data-mid="${esc(id)}">
+    <div class="row" style="margin:0 0 8px"><strong>${esc(m.name || id)}</strong><span class="tag">代号 ${esc(id)}</span><span class="grp">Key：${esc(m.keyMask || '未配置')}（${esc(m.keySource || '未配置')}）</span></div>
+    <div class="grid">
+      <label for="${p('name')}">显示名称（只给管理员看）<input id="${p('name')}" data-k="name" value="${esc(m.name)}" placeholder="例如 主笔·Opus"></label>
+      <label for="${p('protocol')}">兼容协议<select id="${p('protocol')}" data-k="protocol">
+        <option value="openai" ${m.protocol !== 'anthropic' ? 'selected' : ''}>OpenAI 兼容（/chat/completions）</option>
+        <option value="anthropic" ${m.protocol === 'anthropic' ? 'selected' : ''}>Anthropic 兼容（/v1/messages）</option></select></label>
+      <label for="${p('baseUrl')}">Base URL<input id="${p('baseUrl')}" data-k="baseUrl" value="${esc(m.baseUrl)}" placeholder="https://api.example.com/v1"></label>
+      <label for="${p('model')}">模型名称<input id="${p('model')}" data-k="model" value="${esc(m.model)}" placeholder="例如 claude-opus-5"></label>
+      <label for="${p('apiKey')}">API Key<input id="${p('apiKey')}" data-k="apiKey" type="password" autocomplete="off" value="" placeholder="${m.keyMask ? '已设置 ' + esc(m.keyMask) + '，留空不变' : '粘贴 Key'}"></label>
+      <label for="${p('keyEnv')}">或：环境变量名<input id="${p('keyEnv')}" data-k="keyEnv" value="${esc(m.keyEnv)}" placeholder="例如 LMUAI_CUST_CLAUDE_API_KEY"></label>
+      <label for="${p('priceIn')}">输入单价（元/百万 token）<input id="${p('priceIn')}" data-k="priceIn" type="number" min="0" step="0.01" value="${esc(m.priceIn)}"></label>
+      <label for="${p('priceOut')}">输出单价（元/百万 token）<input id="${p('priceOut')}" data-k="priceOut" type="number" min="0" step="0.01" value="${esc(m.priceOut)}"></label>
+    </div>
+    <div class="row">
+      <button onclick="testModel('${esc(id)}', this)">测试连接</button>
+      ${m.keySource === '直接填写' ? `<label class="inline"><input type="checkbox" data-k="clearKey"> 删除直接填写的 Key</label>` : ''}
+      <button class="danger" onclick="delModel('${esc(id)}')">删除这个模型</button>
+      <span class="msg" data-test aria-live="polite"></span>
+    </div>
+  </div>`
+}
+
+function modelOptions(sel, allowFollow) {
+  const opts = Object.entries(S.models).map(([id, m]) => `<option value="${esc(id)}" ${sel === id ? 'selected' : ''}>${esc(m.name || id)}（${esc(m.model || '未填')}）</option>`).join('')
+  return (allowFollow ? `<option value="" ${!sel ? 'selected' : ''}>跟随基础模型</option>` : (sel && S.models[sel] ? '' : '<option value="">请选择</option>')) + opts
+}
+
+function tierCard(id, t) {
+  const p = (k) => `t-${id}-${k}`
+  const rows = S.tasks.map((k) => `<tr><td><span class="grp">${esc(k.group)}</span> ${esc(k.label)}</td><td><label class="sr" for="${p('task-' + k.id)}">${esc(k.label)}</label><select id="${p('task-' + k.id)}" data-task="${esc(k.id)}">${modelOptions(t.tasks?.[k.id] || '', true)}</select></td></tr>`).join('')
+  return `<div class="card" data-tid="${esc(id)}">
+    <div class="row" style="margin:0 0 8px"><strong>${esc(t.label)}</strong><span class="tag">代号 ${esc(id)}</span></div>
+    <div class="grid">
+      <label for="${p('label')}">档位名称（用户看到的）<input id="${p('label')}" data-k="label" value="${esc(t.label)}"></label>
+      <label for="${p('desc')}">一句话说明（用户看到的）<input id="${p('desc')}" data-k="desc" value="${esc(t.desc)}"></label>
+      <label for="${p('est')}">每章大约消耗积分（1 元 = 100 积分）<input id="${p('est')}" data-k="estPerChapter" type="number" min="0" value="${esc(t.estPerChapter)}"></label>
+      <label for="${p('use')}">基础模型<select id="${p('use')}" data-k="use">${modelOptions(t.use, false)}</select></label>
+      <label class="inline" for="${p('en')}"><input id="${p('en')}" type="checkbox" data-k="enabled" ${t.enabled ? 'checked' : ''}> 对用户开放</label>
+    </div>
+    <details style="margin-top:10px"><summary>按环节单独指定模型（${Object.keys(t.tasks || {}).length} 项已指定）</summary>
+      <table><thead><tr><th>环节</th><th>用哪个模型</th></tr></thead><tbody>${rows}</tbody></table>
+    </details>
+  </div>`
+}
+
+function render() {
+  $('models').innerHTML = Object.entries(S.models).map(([id, m]) => modelCard(id, m)).join('') || '<p class="hint">还没有模型，点下面「新增模型」。</p>'
+  $('tiers').innerHTML = Object.entries(S.tiers).map(([id, t]) => tierCard(id, t)).join('')
+  document.querySelectorAll('#pane-tier input, #pane-tier select').forEach((el) => el.addEventListener('input', markDirty))
+}
+
+// 把界面上的值收回 S（重渲染前也要先收，否则未保存的输入会丢）
+function collect() {
+  const models = {}
+  document.querySelectorAll('[data-mid]').forEach((card) => {
+    const id = card.dataset.mid; const m = { ...S.models[id] }
+    card.querySelectorAll('[data-k]').forEach((el) => { m[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value })
+    models[id] = m
+  })
+  const tiers = {}
+  document.querySelectorAll('[data-tid]').forEach((card) => {
+    const id = card.dataset.tid; const t = { ...S.tiers[id], tasks: {} }
+    card.querySelectorAll('[data-k]').forEach((el) => { t[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value })
+    card.querySelectorAll('[data-task]').forEach((el) => { if (el.value) t.tasks[el.dataset.task] = el.value })
+    tiers[id] = t
+  })
+  return { models, tiers }
+}
+
+function addModel() {
+  const id = (prompt('给新模型起个代号（字母、数字、下划线、横线，例如 glm）') || '').trim()
+  if (!id) return
+  if (!/^[A-Za-z0-9_-]{1,24}$/.test(id)) return alert('代号只能用字母、数字、下划线、横线，最多 24 位')
+  const cur = collect(); if (cur.models[id]) return alert('这个代号已经有了')
+  S.models = { ...cur.models, [id]: { name: '', protocol: 'openai', baseUrl: '', model: '', keyEnv: '', priceIn: 0, priceOut: 0, keyMask: '', keySource: '未配置' } }
+  S.tiers = cur.tiers; render(); markDirty()
+  document.querySelector(`[data-mid="${CSS.escape(id)}"] input`)?.focus()
+}
+
+function delModel(id) {
+  const cur = collect()
+  const users = Object.values(cur.tiers).filter((t) => t.use === id || Object.values(t.tasks || {}).includes(id)).map((t) => t.label)
+  if (users.length) return alert(`「${id}」还在被这些档位使用：${users.join('、')}。先改掉再删。`)
+  if (!confirm(`删除模型「${id}」？保存后才真正生效。`)) return
+  delete cur.models[id]; S.models = cur.models; S.tiers = cur.tiers; render(); markDirty()
+}
+
+async function testModel(id, btn) {
+  const card = btn.closest('[data-mid]'); const out = card.querySelector('[data-test]')
+  const m = collect().models[id]
+  out.textContent = '测试中…'; out.className = 'msg'; btn.disabled = true
+  try {
+    const r = await fetch('/api/admin/test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, model: m }) })
+    const j = await r.json()
+    if (j.ok) { out.textContent = `✅ 通了，${j.ms} 毫秒，回复「${j.reply}」`; out.className = 'msg ok' }
+    else { out.textContent = '❌ ' + (j.error || '失败'); out.className = 'msg bad' }
+  } catch (e) { out.textContent = '❌ ' + e.message; out.className = 'msg bad' } finally { btn.disabled = false }
+}
+
+async function saveAll() {
+  const body = collect()
+  $('saveBtn').disabled = true; $('status').textContent = '保存中…'; $('status').className = 'msg'
+  try {
+    const r = await fetch('/api/admin/tiers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const j = await r.json()
+    if (!r.ok) throw new Error(j.error || '保存失败')
+    S = j; render(); dirty = false; $('dirty').textContent = ''
+    $('status').textContent = '✅ 已保存，所有用户下一次调用就用新配置（不用重启）'; $('status').className = 'msg ok'
+  } catch (e) { $('status').textContent = '❌ ' + e.message; $('status').className = 'msg bad' } finally { $('saveBtn').disabled = false }
+}
+
+async function usage() {
+  const r = await fetch('/api/admin/usage?dir=' + encodeURIComponent($('dir').value)); $('out').textContent = JSON.stringify(await r.json(), null, 2)
+}
+async function feedback() { showTab('fb') }
+// ───────── 真人反馈 ─────────
+const when = (s) => s ? new Date(s).toLocaleString('zh-CN', { hour12: false }) : ''
+async function loadFeedback() {
+  try {
+    const r = await fetch('/api/admin/feedback'); const j = await r.json(); if (!r.ok) throw new Error(j.error || '读取失败')
+    const b = $('fbBadge'); b.textContent = j.pending; b.hidden = !j.pending; b.setAttribute('aria-label', j.pending + ' 条待修复')
+    if (curTab !== 'fb') return
+    $('fbList').innerHTML = (j.rows || []).map((x) => {
+      const q = x.qa || {}, cls = q.status === 'open' ? 'open' : q.status === 'fixed' ? 'fixed' : q.status === 'rejected' ? 'rejected' : ''
+      const firstSay = (x.messages || []).find((m) => m.role === 'customer')?.text || x.text || ''
+      const more = (x.messages || []).filter((m) => m.role === 'customer').slice(1).map((m) => '<div class="meta">追问 ' + esc(when(m.at)) + '：' + esc(m.text) + '</div>').join('')
+      const c = x.context || {}
+      const where = [x.account && ('账号 ' + x.account), c.page && ('页面 ' + c.page), c.bookId && ('书 ' + c.bookId), c.chapter && ('章节 ' + c.chapter)].filter(Boolean).join(' · ')
+      return '<div class="fb ' + cls + '"><div class="meta">' + esc(when(x.createdAt || x.at)) + ' · ' + esc(x.category || '') + (where ? ' · ' + esc(where) : '') + ' · <span class="q-' + (cls || 'none') + '">' + esc(q.statusText || '未入队') + '</span>' + (q.id ? ' <span class="tag">' + esc(q.id) + '</span>' : '') + '</div>'
+        + '<div class="say">' + esc(firstSay) + '</div>' + more
+        + (q.note ? '<div class="note">处理结论：' + esc(q.note) + (q.fixedIn ? '（' + esc(q.fixedIn) + '）' : '') + '</div>' : '') + '</div>'
+    }).join('') || '<p class="hint">还没有真人反馈。</p>'
+  } catch (e) { if (curTab === 'fb') $('fbList').innerHTML = '<p class="msg bad">' + esc(e.message) + '</p>' }
+}
+async function loadFixer() {
+  try {
+    const r = await fetch('/api/admin/fixer'); const s = await r.json(); if (!r.ok) throw new Error(s.error || '读取失败')
+    const j = s.job, stText = { scheduled: '已排队', requesting: '正在创建', failed: '失败' }[s.status] || s.status || '还没唤醒过'
+    let line = '修复工程师最近一次唤醒：' + (s.lastWakeAt ? esc(when(s.lastWakeAt)) + '，' + esc(s.lastWakeBy) + '，' + esc(stText) : '还没有')
+    if (j) {
+      const res = j.result === 'succeeded' ? '<span class="q-fixed">执行成功</span>' : j.result === 'failed' ? '<span class="q-open">执行失败：' + esc(j.error || '未知错误') + '</span>' : j.status === 'running' ? '正在修复…' : '等待开始'
+      line += '<br>任务：' + esc(j.title) + '（' + esc(j.model) + '）· ' + res + (j.endedAt ? ' · 结束于 ' + esc(when(j.endedAt)) : '')
+    } else if (s.error) line += '<br><span class="q-open">错误：' + esc(s.error) + '</span>'
+    if (s.dshOnline === false) line += '<br><span class="q-open">本地调度器没有在运行（127.0.0.1:3080 连不上），修复工程师无法被唤醒。</span>'
+    $('fixerBox').innerHTML = line
+  } catch (e) { $('fixerBox').innerHTML = '<span class="msg bad">' + esc(e.message) + '</span>' }
+}
+$('fbReload').addEventListener('click', () => { loadFeedback(); loadFixer() })
+$('wakeBtn').addEventListener('click', async () => {
+  const b = $('wakeBtn'), m = $('wakeMsg'); b.disabled = true; m.textContent = '正在唤醒…'; m.className = 'msg'
+  try {
+    const r = await fetch('/api/admin/fixer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); const j = await r.json(); if (!r.ok) throw new Error(j.error || '失败')
+    m.textContent = (j.wake.woke ? '✅ ' : 'ℹ️ ') + j.wake.reason; m.className = 'msg ' + (j.wake.woke ? 'ok' : '')
+  } catch (e) { m.textContent = '❌ ' + e.message; m.className = 'msg bad' } finally { b.disabled = false; loadFixer() }
+})
+load()
+// ───────── 标签页 ─────────
+let curTab = 'acc'
+function showTab(t) {
+  curTab = t
+  document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === t)))
+  for (const k of ['fb', 'acc', 'tier', 'own', 'use', 'lab']) $('pane-' + k).hidden = k !== t
+  $('saveBtn').hidden = t !== 'tier'
+  document.querySelector('main').style.maxWidth = t === 'lab' ? 'none' : ''
+  history.replaceState(null, '', '#' + t)
+  if (t === 'acc') loadAccounts(); if (t === 'own') loadAgents(); if (t === 'lab') openLab(); if (t === 'fb') { $('fbList').innerHTML = '<p class="hint">读取中…</p>'; loadFeedback(); loadFixer() }
+}
+// DeepSeek 作者与测试：工作台是独立进程（127.0.0.1:4569），没开就让后台拉起，再嵌进来；以后只开这一个管理界面
+async function openLab() {
+  const f = $('labFrame'), m = $('labMsg')
+  if (f.src && !f.hidden) return
+  m.textContent = '正在打开 DeepSeek 作者与测试工作台…'
+  try {
+    const r = await fetch('/api/admin/lab', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); const j = await r.json()
+    if (!j.running) throw new Error('工作台没能启动，请双击桌面「DeepSeek客户测试.cmd」后再点这个标签')
+    f.src = j.url; f.hidden = false; m.innerHTML = '下面就是工作台（也可以 <a href="' + j.url.replace('?embed=1', '') + '" target="_blank" rel="noopener">单独打开</a>）。'
+  } catch (e) { m.textContent = '❌ ' + e.message }
+}
+$('tabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-tab]'); if (b) showTab(b.dataset.tab) })
+
+// ───────── 账号与额度 ─────────
+const fmt = (n) => '¥' + Number(n).toFixed(2)
+let ACC = [], tunnelTimer = null
+async function jpost(url, body) {
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || ('失败 ' + r.status)); return j
+}
+async function loadAccounts(keepInputs) {
+  try {
+    const r = await fetch('/api/admin/accounts'); const j = await r.json(); if (!r.ok) throw new Error(j.error || '读取失败')
+    ACC = j.accounts; if (!keepInputs) renderAccounts(); renderTunnel(j.tunnel)
+  } catch (e) { $('accounts').innerHTML = '<p class="msg bad">' + esc(e.message) + '</p>' }
+}
+function renderTunnel(t) {
+  const bar = $('tunnelBar')
+  const when = t.finishedAt ? new Date(t.finishedAt).toLocaleTimeString('zh-CN', { hour12: false }) : ''
+  const txt = t.running ? '⏳ 正在刷新隧道网址（' + esc(t.trigger) + '），一般 1–3 分钟…' : t.ok === true ? '✅ 上次刷新 ' + when + ' 成功（' + esc(t.trigger) + '）' : t.ok === false ? '❌ 上次刷新 ' + when + ' 失败，点右边重试' : '网址来自上一次刷新；电脑重启后点右边一键恢复（打开本后台时也会自动刷新一次）'
+  bar.innerHTML = '<button class="primary" id="tunBtn" ' + (t.running ? 'disabled' : '') + '>刷新全部隧道网址</button><button id="chkBtn">实测连通</button><span class="msg ' + (t.ok === false ? 'bad' : t.ok ? 'ok' : '') + '">' + txt + '</span>' + (t.ok === false && t.log ? '<details style="width:100%"><summary>查看日志</summary><pre>' + esc(t.log) + '</pre></details>' : '')
+  clearTimeout(tunnelTimer); if (t.running) tunnelTimer = setTimeout(() => loadAccounts(false), 3000)
+}
+function renderAccounts() {
+  if (!ACC.length) { $('accounts').innerHTML = '<p class="hint">还没有账号，在下面新开一个。</p>'; return }
+  $('accounts').innerHTML = ACC.map((a) => {
+    const pct = a.budget ? Math.max(0, Math.min(100, a.left / a.budget * 100)) : 0
+    return '<div class="card acc" data-acc="' + esc(a.name) + '"><div class="row" style="margin:0 0 4px"><span class="big">' + esc(a.codename) + '</span>' + (a.label ? '<span class="grp">' + esc(a.label) + '</span>' : '') + '<span class="tag st-' + esc(a.state) + '">' + esc(a.state) + '</span><span class="grp">端口 ' + a.port + ' · 账号 ' + esc(a.name) + '</span></div>'
+      + '<div>剩余 <b>' + fmt(a.left) + '</b>（约 ' + a.points + ' 积分）/ 总额度 ' + fmt(a.budget) + ' · 已用 ' + fmt(a.spent) + ' · ' + a.calls + ' 次调用</div><div class="bar"><i style="width:' + pct + '%"></i></div>'
+      + '<div class="grp">到期 ' + esc(a.expires ? new Date(a.expires).toLocaleString('zh-CN') : '未知') + '（' + (a.daysLeft > 0 ? '还剩 ' + a.daysLeft + ' 天' : '已过期') + '）</div>'
+      + '<div class="url">' + (a.url ? '网址：<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer">' + esc(a.url) + '</a>' + (a.urlOk ? '' : ' <span class="msg bad">（未验证）</span>') : '<span class="msg bad">暂无可用网址，点上方「刷新全部隧道网址」</span>') + '</div>'
+      + '<div class="row"><label class="inline">加额度 ¥<input class="short" type="number" min="0.01" step="0.01" data-f="add" placeholder="10"></label><button class="mini" data-act="addBudget">加</button>'
+      + '<label class="inline">延期 <input class="short" type="number" min="1" step="1" data-f="days" placeholder="7"> 天</label><button class="mini" data-act="addDays">延</button>'
+      + '<label class="inline">代号 <input class="short" data-f="code" maxlength="20" value="' + esc(a.codename) + '"></label><label class="inline">备注 <input class="short" data-f="label" maxlength="40" value="' + esc(a.label) + '"></label><button class="mini" data-act="rename">保存名称</button></div>'
+      + '<div class="row"><button class="mini" data-act="copyInvite" ' + (a.url ? '' : 'disabled') + '>复制邀请文字</button><button class="mini" data-act="copyUrl" ' + (a.url ? '' : 'disabled') + '>复制网址</button><button class="mini ' + (a.enabled ? 'danger' : '') + '" data-act="toggle">' + (a.enabled ? '停用' : '重新启用') + '</button><span class="msg" data-m aria-live="polite"></span></div></div>'
+  }).join('')
+}
+async function copyText(s) { try { await navigator.clipboard.writeText(s); return true } catch { const ta = document.createElement('textarea'); ta.value = s; document.body.append(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok } }
+$('accounts').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-act]'); if (!btn) return
+  const card = btn.closest('[data-acc]'); const name = card.dataset.acc; const a = ACC.find((x) => x.name === name); const msg = card.querySelector('[data-m]')
+  const val = (f) => card.querySelector('[data-f="' + f + '"]').value.trim()
+  const say = (t, bad) => { msg.textContent = t; msg.className = 'msg ' + (bad ? 'bad' : 'ok') }
+  try {
+    if (btn.dataset.act === 'copyInvite') return say((await copyText(a.invite)) ? '已复制邀请文字' : '复制失败，请手动选中', false)
+    if (btn.dataset.act === 'copyUrl') return say((await copyText(a.url)) ? '已复制网址' : '复制失败', false)
+    btn.disabled = true
+    let body = { name }
+    if (btn.dataset.act === 'addBudget') { if (!val('add')) throw new Error('先填要加多少元'); body.addBudget = val('add') }
+    if (btn.dataset.act === 'addDays') { if (!val('days')) throw new Error('先填要延期几天'); body.addDays = val('days') }
+    if (btn.dataset.act === 'rename') { body.codename = val('code'); body.label = val('label') }
+    if (btn.dataset.act === 'toggle') { if (a.enabled && !confirm('停用「' + a.codename + '」？用户下次点写作就会被拒绝，稿件仍可导出。')) { btn.disabled = false; return } body.enabled = !a.enabled }
+    const j = await jpost('/api/admin/accounts/update', body)
+    await loadAccounts(); const c2 = document.querySelector('[data-acc="' + CSS.escape(name) + '"] [data-m]'); if (c2) { c2.textContent = '✅ 已生效' + (j.tunnelStarted ? '，正在补隧道' : ''); c2.className = 'msg ok' }
+  } catch (err) { say('❌ ' + err.message, true); btn.disabled = false }
+})
+$('tunnelBar').addEventListener('click', async (e) => {
+  const b = e.target.closest('button'); if (!b) return
+  try {
+    if (b.id === 'tunBtn') { b.disabled = true; const j = await jpost('/api/admin/tunnels/refresh', {}); renderTunnel(j.tunnel) }
+    if (b.id === 'chkBtn') {
+      b.disabled = true; b.textContent = '检测中…'
+      const r = await fetch('/api/admin/accounts/check'); const j = await r.json()
+      for (const c of j.checks) { const m = document.querySelector('[data-acc="' + CSS.escape(c.name) + '"] [data-m]'); if (m) { m.textContent = '实例 ' + (c.portUp ? '✅' : '❌') + ' · 公网 ' + (c.urlUp ? '✅' : '❌'); m.className = 'msg ' + (c.portUp && c.urlUp ? 'ok' : 'bad') } }
+      b.disabled = false; b.textContent = '实测连通'
+    }
+  } catch (err) { alert(err.message); b.disabled = false }
+})
+$('createBtn').addEventListener('click', async () => {
+  const b = $('createBtn'), m = $('createMsg'); b.disabled = true; m.textContent = '创建中，请勿重复点击…'; m.className = 'msg'
+  try {
+    const j = await jpost('/api/admin/accounts/create', { codename: $('n-code').value, label: $('n-label').value, budget: $('n-budget').value, days: $('n-days').value })
+    m.textContent = '✅ 已创建「' + j.account.codename + '」，正在开通公网网址（1–3 分钟后点刷新或等上方提示）'; m.className = 'msg ok'; $('n-code').value = ''; $('n-label').value = ''
+    await loadAccounts()
+  } catch (err) { m.textContent = '❌ ' + err.message + '（先核对上面的账号列表，别重复创建）'; m.className = 'msg bad' } finally { b.disabled = false }
+})
+
+// ───────── 我自己的模型分工（workshop/data/agents.json） ─────────
+let OWN = { agents: {}, assign: {}, tasks: [] }
+async function loadAgents() {
+  const r = await fetch('/api/admin/agents'); const j = await r.json(); if (!r.ok) { $('agentsMsg').textContent = j.error || '读取失败'; $('agentsMsg').className = 'msg bad'; return }
+  OWN = j; renderAgents()
+}
+function agentCard(id, a) {
+  const p = (k) => 'a-' + id + '-' + k
+  return '<div class="card" data-aid="' + esc(id) + '"><div class="row" style="margin:0 0 8px"><strong>' + esc(a.name || id) + '</strong><span class="tag">代号 ' + esc(id) + '</span><span class="grp">Key：' + esc(a.keyMask || '未配置') + '（' + esc(a.keySource || '未配置') + '）</span></div><div class="grid">'
+   + '<label for="' + p('name') + '">显示名称<input id="' + p('name') + '" data-k="name" value="' + esc(a.name) + '"></label>'
+   + '<label for="' + p('protocol') + '">兼容协议<select id="' + p('protocol') + '" data-k="protocol"><option value="openai" ' + (a.protocol !== 'anthropic' ? 'selected' : '') + '>OpenAI 兼容</option><option value="anthropic" ' + (a.protocol === 'anthropic' ? 'selected' : '') + '>Anthropic 兼容</option></select></label>'
+   + '<label for="' + p('baseUrl') + '">Base URL<input id="' + p('baseUrl') + '" data-k="baseUrl" value="' + esc(a.baseUrl) + '"></label>'
+   + '<label for="' + p('model') + '">模型名称<input id="' + p('model') + '" data-k="model" value="' + esc(a.model) + '"></label>'
+   + '<label for="' + p('apiKey') + '">API Key<input id="' + p('apiKey') + '" data-k="apiKey" type="password" autocomplete="off" placeholder="' + (a.keyMask ? '已设置 ' + esc(a.keyMask) + '，留空不变' : '粘贴 Key') + '"></label>'
+   + '<label for="' + p('keyEnv') + '">或：环境变量名<input id="' + p('keyEnv') + '" data-k="keyEnv" value="' + esc(a.keyEnv) + '"></label>'
+   + '<label for="' + p('priceIn') + '">输入单价（元/百万 token）<input id="' + p('priceIn') + '" data-k="priceIn" type="number" min="0" step="0.01" value="' + esc(a.priceIn) + '"></label>'
+   + '<label for="' + p('priceOut') + '">输出单价（元/百万 token）<input id="' + p('priceOut') + '" data-k="priceOut" type="number" min="0" step="0.01" value="' + esc(a.priceOut) + '"></label></div>'
+   + '<div class="row"><button data-aact="test">测试连接</button>' + (a.keySource === '直接填写' ? '<label class="inline"><input type="checkbox" data-k="clearKey"> 删除直接填写的 Key</label>' : '') + '<button class="danger" data-aact="del">删除</button><span class="msg" data-atest aria-live="polite"></span></div></div>'
+}
+function collectOwn() {
+  const agents = {}
+  document.querySelectorAll('[data-aid]').forEach((c) => { const id = c.dataset.aid; const a = { ...OWN.agents[id] }; c.querySelectorAll('[data-k]').forEach((el) => { a[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value }); agents[id] = a })
+  const assign = {}
+  document.querySelectorAll('[data-atask]').forEach((el) => { assign[el.dataset.atask] = el.value })
+  return { agents, assign, engineer: $('engineerAgent').value || OWN.engineer }
+}
+function renderAgents() {
+  $('agents').innerHTML = Object.entries(OWN.agents).map(([id, a]) => agentCard(id, a)).join('')
+  const opts = (sel) => Object.entries(OWN.agents).map(([id, a]) => '<option value="' + esc(id) + '" ' + (sel === id ? 'selected' : '') + '>' + esc(a.name || id) + '（' + esc(a.model) + '）</option>').join('')
+  let last = '', rows = ''
+  for (const t of OWN.tasks) { if (t.group !== last) { rows += '<tr><td colspan="2" class="grp"><b>' + esc(t.group) + '</b></td></tr>'; last = t.group } rows += '<tr><td>' + esc(t.label) + '</td><td><label class="sr" for="as-' + esc(t.id) + '">' + esc(t.label) + '</label><select id="as-' + esc(t.id) + '" data-atask="' + esc(t.id) + '">' + opts(OWN.assign[t.id]) + '</select></td></tr>' }
+  $('assign').innerHTML = '<table><thead><tr><th>环节</th><th>用哪个模型</th></tr></thead><tbody>' + rows + '</tbody></table>'
+  $('engineerAgent').innerHTML = opts(OWN.engineer)
+}
+$('agents').addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-aact]'); if (!b) return
+  const card = b.closest('[data-aid]'); const id = card.dataset.aid; const cur = collectOwn()
+  if (b.dataset.aact === 'del') {
+    const used = Object.entries(cur.assign).filter(([, v]) => v === id).map(([k]) => (OWN.tasks.find((t) => t.id === k) || {}).label || k)
+    if (used.length) return alert('「' + id + '」还在被这些环节使用：' + used.join('、') + '。先改掉再删。')
+    if (!confirm('删除模型「' + id + '」？保存后才生效。')) return
+    delete cur.agents[id]; OWN.agents = cur.agents; OWN.assign = cur.assign; return renderAgents()
+  }
+  const out = card.querySelector('[data-atest]'); out.textContent = '测试中…'; out.className = 'msg'; b.disabled = true
+  try { const j = await jpost('/api/admin/test', { scope: 'agent', id, model: cur.agents[id] }); out.textContent = j.ok ? '✅ 通了，' + j.ms + ' 毫秒，回复「' + j.reply + '」' : '❌ ' + (j.error || '失败'); out.className = 'msg ' + (j.ok ? 'ok' : 'bad') } catch (err) { out.textContent = '❌ ' + err.message; out.className = 'msg bad' } finally { b.disabled = false }
+})
+$('addAgentBtn').addEventListener('click', () => {
+  const id = (prompt('给新模型起个代号（字母、数字、下划线，例如 glm）') || '').trim(); if (!id) return
+  if (!/^[A-Za-z0-9_-]{1,24}$/.test(id)) return alert('代号只能用字母、数字、下划线、横线，最多 24 位')
+  const cur = collectOwn(); if (cur.agents[id]) return alert('这个代号已经有了')
+  OWN.agents = { ...cur.agents, [id]: { name: '', protocol: 'openai', baseUrl: '', model: '', keyEnv: '', priceIn: 0, priceOut: 0, keyMask: '', keySource: '未配置' } }; OWN.assign = cur.assign; renderAgents()
+})
+$('saveAgentsBtn').addEventListener('click', async () => {
+  const m = $('agentsMsg'); m.textContent = '保存中…'; m.className = 'msg'
+  try { const j = await jpost('/api/admin/agents', collectOwn()); OWN = j; renderAgents(); m.textContent = '✅ 已保存'; m.className = 'msg ok' } catch (err) { m.textContent = '❌ ' + err.message; m.className = 'msg bad' }
+})
+
+showTab(['fb', 'acc', 'tier', 'own', 'use', 'lab'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'acc')
+loadFeedback() // 任何标签都先刷出「真人反馈」待修复徽标
+setInterval(() => { loadFeedback(); if (curTab === 'fb') loadFixer() }, 60000)
+</script>
+</body>
+</html>

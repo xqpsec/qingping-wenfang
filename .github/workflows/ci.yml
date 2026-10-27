@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['20', '22', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Syntax check every module
+        shell: bash
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            node --check "$f" || { echo "syntax error: $f"; fail=1; }
+          done < <(git ls-files '*.mjs')
+          exit $fail
+      - name: Core pipeline suite
+        run: node workshop/test.mjs
+      - name: Revision suite
+        run: node workshop/test-revision.mjs
+      - name: Tier routing
+        run: node workshop/test-tier-routing.mjs
+      - name: Prompt assembly
+        run: node workshop/test-thinking-style.mjs
+      - name: No node_modules expected
+        shell: bash
+        run: |
+          if [ -d node_modules ]; then echo "unexpected node_modules"; exit 1; fi
+          if grep -q '"dependencies"' package.json; then echo "unexpected dependencies"; exit 1; fi

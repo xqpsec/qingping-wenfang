@@ -1,0 +1,50 @@
+{
+  "name": "qingping-wenfang",
+  "version": "0.1.0",
+  "description": "Local-first studio for producing long-form web novels with an LLM ensemble: multi-candidate drafts, pairwise judging, rubric scoring, export.",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "qingping": "workshop/cli.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OWNER/qingping-wenfang.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OWNER/qingping-wenfang/issues"
+  },
+  "homepage": "https://github.com/OWNER/qingping-wenfang#readme",
+  "scripts": {
+    "start": "node workshop/server.mjs",
+    "launch": "node workshop/launcher.mjs",
+    "cli": "node workshop/cli.mjs",
+    "admin": "node workshop/deploy/start-admin.mjs",
+    "test": "node workshop/test.mjs",
+    "test:all": "node workshop/run-all-tests.mjs",
+    "ui:smoke": "node workshop/ui-smoke.mjs",
+    "leak-scan": "node workshop/leak-scan.mjs",
+    "lint:html": "node workshop/check-html-js.mjs"
+  },
+  "keywords": [
+    "llm",
+    "writing",
+    "novel",
+    "web-novel",
+    "multi-agent",
+    "local-first",
+    "self-hosted"
+  ],
+  "files": [
+    "workshop/",
+    "docs/",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ]
+}
