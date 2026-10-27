@@ -16,7 +16,9 @@ let fail = 0
 const check = (name, ok, info = '') => { console.log(`${ok ? '✓' : '✗'} ${name}${info ? '  ' + info : ''}`); if (!ok) fail++ }
 
 const PORT = await freePort(), DBG = await freePort()
-// 本验收需要真实浏览器（Edge/Chromium）。没有就跳过，不算失败。
+// 本验收要驱动真实浏览器（无头 Edge/Chromium），属于「本机验收」而不是 CI 里的单元测试：
+// 默认跳过，需要时用 WORKSHOP_UI_TESTS=1 打开（可用 WORKSHOP_BROWSER 指定可执行文件）。
+const WANT_UI = process.env.WORKSHOP_UI_TESTS === '1'
 const EDGE = [
   process.env.WORKSHOP_BROWSER,
   'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -27,8 +29,10 @@ const EDGE = [
   '/usr/bin/chromium',
   '/usr/bin/chromium-browser',
 ].filter(Boolean).find((p) => fs.existsSync(p))
-if (!EDGE) {
-  console.log('跳过：本机没有 Edge/Chrome/Chromium，自动更新验收需要真实浏览器（设 WORKSHOP_BROWSER 可指定可执行文件）')
+if (!WANT_UI || !EDGE) {
+  console.log(!WANT_UI
+    ? '跳过：浏览器类验收默认关闭，设 WORKSHOP_UI_TESTS=1 打开（本项要真开一个无头浏览器）'
+    : '跳过：本机没有 Edge/Chrome/Chromium，可用 WORKSHOP_BROWSER 指定可执行文件')
   process.exit(0)
 }
 const SANDBOX = fs.mkdtempSync(path.join(os.tmpdir(), 'ws-au-books-'))
