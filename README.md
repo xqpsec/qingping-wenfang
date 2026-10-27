@@ -1,5 +1,9 @@
 # Qingping Wenfang
 
+[![ci](https://github.com/xqpsec/qingping-wenfang/actions/workflows/ci.yml/badge.svg)](https://github.com/xqpsec/qingping-wenfang/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![node >= 20](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
+
 **A local-first, self-hosted studio for producing long-form web novels with an LLM ensemble.**
 
 Qingping Wenfang turns “I want to write a 300-chapter serial” into a repeatable pipeline: it drafts a

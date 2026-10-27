@@ -1,10 +1,12 @@
 {
   "repo": "qingping-wenfang",
+  "owner": "xqpsec",
   "title": "清平文坊",
   "description": "Local-first studio for long-form web novels: multi-candidate drafts, pairwise LLM judging, rubric scoring. Node, zero deps.",
   "topics": ["llm", "writing", "novel", "web-novel", "multi-agent", "local-first", "self-hosted", "nodejs", "ai-writing"],
   "private": false,
   "branch": "main",
+  "proxy": "socks5h://127.0.0.1:1088",
   "authorName": "Qingping Wenfang",
   "authorEmail": "noreply@example.com",
   "scan": {

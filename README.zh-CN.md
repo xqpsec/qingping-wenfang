@@ -1,5 +1,9 @@
 # Qingping Wenfang · 清平文坊
 
+[![ci](https://github.com/xqpsec/qingping-wenfang/actions/workflows/ci.yml/badge.svg)](https://github.com/xqpsec/qingping-wenfang/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![node >= 20](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
+
 **本地运行的 AI 长篇小说生产线：多模型分工、多候选稿择优、自评改稿、一键导出。**
 
 一句话：你给一个想法，它出开书方案 → 设定集 → 章纲 → 每章写 2~4 个候选版本 → 让另一个模型

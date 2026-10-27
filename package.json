@@ -13,12 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OWNER/qingping-wenfang.git"
+    "url": "git+https://github.com/xqpsec/qingping-wenfang.git"
   },
   "bugs": {
-    "url": "https://github.com/OWNER/qingping-wenfang/issues"
+    "url": "https://github.com/xqpsec/qingping-wenfang/issues"
   },
-  "homepage": "https://github.com/OWNER/qingping-wenfang#readme",
+  "homepage": "https://github.com/xqpsec/qingping-wenfang#readme",
   "scripts": {
     "start": "node workshop/server.mjs",
     "launch": "node workshop/launcher.mjs",
